@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="inventory_occupancy">
+
+
+    <typeAlias alias="inventoryOccupancyDO" type="com.wdk.wms.basic.daoobject.InventoryOccupancyDO"/>
+
+    <resultMap id="inventoryOccupancyDOResultMap" class="inventoryOccupancyDO">
+        <result property="id" column="id"/>
+        <result property="gmtCreate" column="gmt_create"/>
+        <result property="gmtModified" column="gmt_modified"/>
+        <result property="occupancyOrderId" column="occupancy_order_id"/>
+        <result property="occupancyOrderType" column="occupancy_order_type"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="ownerId" column="owner_id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="itemName" column="item_name"/>
+        <result property="cabinetId" column="cabinet_id"/>
+        <result property="occupancyQuantity" column="occupancy_quantity"/>
+        <result property="inventoryBatchId" column="inventory_batch_id"/>
+        <result property="actualQuantity" column="actual_quantity"/>
+        <result property="operateOrderId" column="operate_order_id"/>
+        <result property="operateOrderType" column="operate_order_type"/>
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="inventoryInfoId" column="inventory_info_id"/>
+        <result property="waveId" column="wave_id"/>
+        <result property="serviceFeatures" column="service_features"/>
+        <result property="inventoryOperateMode" column="inventory_operate_mode"/>
+    </resultMap>
+
+    <!--查询条件-->
+    <sql id="doUncertainQueryParams">
+        <dynamic>
+            <isNotEqual property="id" compareValue="0" prepend="and">
+                id=#id#
+            </isNotEqual>
+            <isNotNull property="gmtCreate" prepend="and">
+                gmt_create=to_date(#gmtCreate#,'YYYY-MM-DD')
+            </isNotNull>
+            <isNotNull property="gmtModified" prepend="and">
+                gmt_modified=to_date(#gmtModified#,'YYYY-MM-DD')
+            </isNotNull>
+            <isNotEqual property="occupancyOrderId" compareValue="0" prepend="and">
+                occupancy_order_id=#occupancyOrderId#
+            </isNotEqual>
+            <isNotEqual property="occupancyOrderType" compareValue="0" prepend="and">
+                occupancy_order_type=#occupancyOrderType#
+            </isNotEqual>
+            <isNotEqual property="warehouseId" compareValue="0" prepend="and">
+                warehouse_id=#warehouseId#
+            </isNotEqual>
+            <isNotEqual property="ownerId" compareValue="0" prepend="and">
+                owner_id=#ownerId#
+            </isNotEqual>
+            <isNotEqual property="itemId" compareValue="0" prepend="and">
+                item_id=#itemId#
+            </isNotEqual>
+            <isNotNull property="itemName" prepend="and">
+                item_name like '%'||#itemName#||'%'
+            </isNotNull>
+            <isNotEqual property="cabinetId" compareValue="0" prepend="and">
+                cabinet_id=#cabinetId#
+            </isNotEqual>
+            <isNotEqual property="inventoryBatchId" compareValue="0" prepend="and">
+                inventory_batch_id=#inventoryBatchId#
+            </isNotEqual>
+            <isNotEqual property="operateOrderId" compareValue="0" prepend="and">
+                operate_order_id=#operateOrderId#
+            </isNotEqual>
+            <isNotEqual property="operateOrderType" compareValue="0" prepend="and">
+                operate_order_type=#operateOrderType#
+            </isNotEqual>
+            <isNotEqual property="warehouseCode" compareValue="0" prepend="and">
+                warehouse_code=#warehouseCode#
+            </isNotEqual>
+            <isNotEqual property="inventory_info_id" compareValue="0" prepend="and">
+                inventory_info_id=#inventoryInfoId#
+            </isNotEqual>
+        </dynamic>
+    </sql>
+    <!-- select 基本语句 -->
+    <select id="queryInventoryOccupancyDO" parameterClass="inventoryOccupancyDO" resultClass="inventoryOccupancyDO">
+        select id as id,
+        gmt_create as gmtCreate,
+        gmt_modified as gmtModified,
+        occupancy_order_id as occupancyOrderId,
+        occupancy_order_type as occupancyOrderType,
+        warehouse_id as warehouseId,
+        owner_id as ownerId,
+        item_id as itemId,
+        item_name as itemName,
+        cabinet_id as cabinetId,
+        occupancy_quantity as occupancyQuantity,
+        inventory_batch_id as inventoryBatchId,
+        actual_quantity as actualQuantity,
+        operate_order_id as operateOrderId,
+        operate_order_type as operateOrderType,
+        warehouse_code as warehouseCode
+        inventory_info_id as inventoryInfoId
+        inventory_operate_mode as inventoryOperateMode
+        from inventory_occupancy WHERE 1 = 1
+        <include refid="doUncertainQueryParams"/>
+    </select>
+
+    <!-- select count() 基本语句 -->
+    <select id="queryCount" parameterClass="inventoryOccupancyDO" resultClass="java.lang.Integer">
+        select count(1) from inventory_occupancy
+        where 1 = 1
+        <include refid="doUncertainQueryParams"/>
+    </select>
+
+    <!-- insert into 基本语句 -->
+    <insert id="insertInventoryOccupancyDO" parameterClass="inventoryOccupancyDO">
+        insert into
+        inventory_occupancy(gmt_create,gmt_modified,occupancy_order_id,occupancy_order_type,warehouse_id,owner_id,
+        item_id,item_name,cabinet_id,occupancy_quantity,inventory_batch_id,actual_quantity,operate_order_id,operate_order_type,
+        warehouse_code,inventory_info_id,wave_id,service_features,inventory_operate_mode)
+        values(now(),now(),#occupancyOrderId#,#occupancyOrderType#,#warehouseId#,#ownerId#,#itemId#,
+        #itemName#,#cabinetId#,#occupancyQuantity#,#inventoryBatchId#,#actualQuantity#,#operateOrderId#,#operateOrderType#,
+        #warehouseCode#,#inventoryInfoId#,#waveId#,#serviceFeatures#,#inventoryOperateMode#)
+        <selectKey keyProperty="id" resultClass="java.lang.Long">
+            SELECT
+            LAST_INSERT_ID() AS value
+        </selectKey>
+    </insert>
+
+    <!-- update 基本语句 -->
+    <update id="updateInventoryOccupancy" parameterClass="inventoryOccupancyDO">
+        update inventory_occupancy
+        set
+        gmt_modified=now(),
+        occupancy_order_id=#occupancyOrderId#,
+        occupancy_order_type=#occupancyOrderType#,
+        owner_id=#ownerId#,
+        item_id=#itemId#,
+        item_name=#itemName#,
+        cabinet_id=#cabinetId#,
+        occupancy_quantity=#occupancyQuantity#,
+        inventory_batch_id=#inventoryBatchId#,
+        actual_quantity=#actualQuantity#,
+        operate_order_id=#operateOrderId#,
+        operate_order_type=#operateOrderType#,
+        wave_id=#waveId#,
+        service_features=#serviceFeatures#,
+        inventory_operate_mode=#inventoryOperateMode#
+        where id = #id# AND warehouse_code=#warehouseCode# AND inventory_info_id = #inventoryInfoId# AND warehouse_id=#warehouseId#
+    </update>
+
+    <!--通过批次id查询库存占用-->
+    <select id="queryByWaveId" resultMap="inventoryOccupancyDOResultMap">
+        SELECT * FROM inventory_occupancy
+        WHERE warehouse_id=#warehouseId# AND warehouse_code=#warehouseCode# AND wave_id=#waveId#
+    </select>
+
+    <!--修改库存占用单id-->
+    <update id="updateOccupancyOrderId">
+        UPDATE inventory_occupancy
+        SET
+        gmt_modified=now(),
+        occupancy_order_id=#occupancyOrderId#,
+        occupancy_order_type=#occupancyOrderType#
+        WHERE id = #id# AND warehouse_code=#warehouseCode# AND warehouse_id=#warehouseId#
+        AND wave_id=#waveId#
+    </update>
+
+    <!--修改库存操作单单id-->
+    <update id="updateOccupancyOrderOperater">
+        UPDATE inventory_occupancy
+        SET
+        gmt_modified=now(),
+        operate_order_id=#operateOrderId#,
+        operate_order_type=#operateOrderType#
+        WHERE id = #id# AND warehouse_code=#warehouseCode# AND warehouse_id=#warehouseId#
+        AND wave_id=#waveId#
+
+    </update>
+
+    <!--通过操作单id 和 操作单类型查询-->
+    <select id="queryByOperateOrder" resultMap="inventoryOccupancyDOResultMap">
+        SELECT * FROM inventory_occupancy
+        WHERE warehouse_code=#warehouseCode# AND wave_id=#waveId#
+        AND operate_order_id=#operateOrderId# AND operate_order_type=#operateOrderType#
+        ORDER BY occupancy_order_id
+    </select>
+
+    <!-- 更新实操数量 -->
+    <update id="updateActualQuantity">
+        UPDATE inventory_occupancy
+        SET gmt_modified=now(),
+        actual_quantity=#actualQuantity#
+        WHERE
+        id = #id# AND warehouse_code=#warehouseCode# AND wave_id=#waveId#
+    </update>
+
+    <!--通过占用单id 查询-->
+    <select id="queryByOccupancyOrderId" resultMap="inventoryOccupancyDOResultMap">
+        SELECT * FROM inventory_occupancy
+        WHERE 1=1
+        AND warehouse_id = #warehouseId#
+        AND warehouse_code = #warehouseCode#
+        AND wave_id = #waveId#
+        AND occupancy_order_type = #occupancyOderType#
+        AND occupancy_order_id in
+        <iterate property="occupancyOrderIds" open="(" close=")" conjunction=",">#occupancyOrderIds[]#</iterate>
+    </select>
+</sqlMap>

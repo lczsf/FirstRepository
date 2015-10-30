@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+      http://www.springframework.org/schema/tx
+      http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+      http://www.springframework.org/schema/context
+      http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+      default-autowire="byName">
+	<bean id="warehouseClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.WarehouseClientAPIImpl" />
+	<bean id="warehouseClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.WarehouseClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="warehouseClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>WarehouseClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+            <value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+	
+	<bean id="cabinetClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.CabinetClientAPIImpl" />
+	<bean id="cabinetClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.CabinetClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="cabinetClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>CabinetClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+            <value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+	
+	<bean id="containerClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.ContainerClientAPIImpl" />
+	<bean id="containerClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.ContainerClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="containerClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>ContainerClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+            <value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+	
+	<bean id="putawayOrderClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.PutawayOrderClientAPIImpl" />
+	<bean id="putawayOrderClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.PutawayOrderClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="putawayOrderClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>PutawayOrderClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+            <value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+	
+	<bean id="diffOrderClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.DiffOrderClientAPIImpl" />
+	<bean id="diffOrderClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.DiffOrderClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="diffOrderClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>DiffOrderClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+            <value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+	
+	 <bean id="sortingGoodsPartitionClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.SortingGoodsPartitionClientAPIImpl" />
+	<bean id="sortingGoodsPartitionClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.SortingGoodsPartitionClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="sortingGoodsPartitionClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>SortingGoodsPartitionClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+            <value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+	
+	<bean id="salesOrderClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.SalesOrderClientAPIImpl" />
+	<bean id="salesOrderClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.SalesOrderClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="salesOrderClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>SalesOrderClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+            <value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+	
+	<bean id="pickingOrderClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.PickingOrderClientAPIImpl" />
+	<bean id="pickingOrderClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.PickingOrderClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="pickingOrderClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>PickingOrderClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+            <value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+	
+	<bean id="artificialTaskClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.ArtificialTaskClientAPIImpl" />
+	<bean id="artificialTaskClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.ArtificialTaskClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="artificialTaskClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>ArtificialTaskClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+            <value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+	
+	<bean id="backContainerOrderClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.BackContainerOrderClientAPIImpl" />
+	<bean id="backContainerOrderClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.BackContainerOrderClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="backContainerOrderClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>BackContainerOrderClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+            <value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+	
+	<bean id="backOrderClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.BackOrderClientAPIImpl" />
+	<bean id="backOrderClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.BackOrderClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="backOrderClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>BackOrderClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+            <value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+</beans>

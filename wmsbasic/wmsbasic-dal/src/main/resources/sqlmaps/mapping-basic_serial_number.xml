@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="basic_serial_number">
+    <typeAlias alias="basicSerialNumberDO" type="com.wdk.wms.basic.daoobject.BasicSerialNumberDO"/>
+
+    <resultMap id="basicSerialNumberDOResultMap" class="basicSerialNumberDO">
+        <result property="id" column="id"/>
+        <result property="gmtCreate" column="gmt_create"/>
+        <result property="gmtModified" column="gmt_modified"/>
+        <result property="serialNumber" column="serial_number"/>
+        <result property="version" column="version"/>
+        <result property="date" column="date"/>
+        <result property="serialType" column="serial_type"/>
+    </resultMap>
+
+
+    <!--插入-->
+    <insert id="insertSerialNumber" parameterClass="basicSerialNumberDO">
+        INSERT INTO basic_serial_number(gmt_create, gmt_modified, serial_number,
+        date, serial_type)
+        VALUES (NOW(), NOW(), #serialNumber#, #date#, #serialType#)
+        <selectKey keyProperty="id" resultClass="java.lang.Long">
+            SELECT
+            LAST_INSERT_ID() AS value
+        </selectKey>
+    </insert>
+
+
+    <!-- 通过时间 流水号类型 查询-->
+    <select id="queryByDateAndType" resultMap="basicSerialNumberDOResultMap">
+        SELECT * FROM basic_serial_number t
+        WHERE t.date = #date# AND t.serial_type = #serialType#
+    </select>
+
+    <!--更新-->
+    <update id="updateSerialNumber" parameterClass="basicSerialNumberDO">
+        UPDATE basic_serial_number SET
+        gmt_modified = NOW(),
+        serial_number = #serialNumber#,
+        version = version+1
+        WHERE date = #date# AND version = #version# AND serial_type = #serialType#
+    </update>
+
+    <!--通过id查询-->
+    <select id="queryById" parameterClass="java.lang.Long" resultMap="basicSerialNumberDOResultMap">
+        SELECT * FROM basic_serial_number
+        WHERE id = #id#
+    </select>
+</sqlMap>

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="arrival_notice_detail">
+
+	<typeAlias alias="arrivalNoticeDetailDO" type="com.wdk.wms.basic.daoobject.ArrivalNoticeDetailDO" />
+
+    <!--待收明细-->
+    <typeAlias alias="arrivalDetailDO" type="com.wdk.wms.basic.daoobject.ArrivalDetailDO"/>
+
+    <resultMap id="arrivalDetailDOResultMap" class="arrivalDetailDO">
+        <result property="id" column="id"/>
+        <result property="asnId" column="asn_id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="itemCode" column="item_code"/>
+        <result property="unit" column="unit"/>
+        <result property="spec" column="spec"/>
+        <result property="quantity" column="quantity"/>
+    </resultMap>
+
+
+    <resultMap id="arrivalNoticeDetailDOResultMap" class="arrivalNoticeDetailDO">
+	    <result property="asnId" column="asn_id" />
+        <result property="warehouseCode" column="warehouse_code"/>
+	    <result property="itemId" column="item_id" />
+		<result property="itemCode" column="item_code"/>
+	    <result property="price" column="price" />
+	    <result property="remark" column="remark" />
+	    <result property="gmtCreate" column="gmt_create" />
+	    <result property="gmtModified" column="gmt_modified" />
+	    <result property="id" column="id" />
+	    <result property="feature" column="feature" />
+	    <result property="brandId" column="brand_id" />
+	    <result property="unit" column="unit" />
+	    <result property="spec" column="spec" />
+		<result property="version" column="version"/>
+	    <result property="planPackageQuantity" column="plan_package_quantity" />
+	    <result property="actualPackageQuantity" column="actual_package_quantity" />
+        <result property="logicWarehouseId" column="logic_warehouse_id"/>
+	</resultMap>
+
+    <resultMap id="arrivalNoticeDetailDOAndQuantityResultMap" class="arrivalNoticeDetailDO">
+        <result property="asnId" column="asn_id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="itemCode" column="item_code"/>
+        <result property="price" column="price"/>
+        <result property="remark" column="remark"/>
+        <result property="gmtCreate" column="gmt_create"/>
+        <result property="gmtModified" column="gmt_modified"/>
+        <result property="id" column="id"/>
+        <result property="feature" column="feature"/>
+        <result property="brandId" column="brand_id"/>
+        <result property="unit" column="unit"/>
+        <result property="spec" column="spec"/>
+        <result property="version" column="version"/>
+        <result property="planPackageQuantity" column="plan_package_quantity"/>
+        <result property="actualPackageQuantity" column="actual_package_quantity"/>
+        <result property="logicWarehouseId" column="logic_warehouse_id"/>
+        <result property="quantity" column="quantity"/>
+    </resultMap>
+
+    <!--更新-->
+    <sql id="doUpdateCondition">
+        <isNotNull property="asnId" prepend=",">
+            <![CDATA[ asn_id = #asnId#]]>
+        </isNotNull>
+        <isNotNull property="itemId" prepend=",">
+            <![CDATA[ item_id = #itemId#]]>
+        </isNotNull>
+        <isNotNull property="itemCode" prepend=",">
+            <![CDATA[ item_code = #itemCode#]]>
+        </isNotNull>
+        <isNotNull property="price" prepend=",">
+            <![CDATA[ price = #price#]]>
+        </isNotNull>
+        <isNotNull property="remark" prepend=",">
+            <![CDATA[ remark = #remark#]]>
+        </isNotNull>
+        <isNotNull property="feature" prepend=",">
+            <![CDATA[ feature = #feature#]]>
+        </isNotNull>
+        <isNotNull property="brandId" prepend=",">
+            <![CDATA[ brand_id = #brandId#]]>
+        </isNotNull>
+        <isNotNull property="unit" prepend=",">
+            <![CDATA[ unit = #unit#]]>
+        </isNotNull>
+        <isNotNull property="spec" prepend=",">
+            <![CDATA[ spec = #spec#]]>
+        </isNotNull>
+        <isNotNull property="planPackageQuantity" prepend=",">
+            <![CDATA[ plan_package_quantity = #planPackageQuantity#]]>
+        </isNotNull>
+        <isNotNull property="actualPackageQuantity" prepend=",">
+            <![CDATA[ actual_package_quantity = #actualPackageQuantity#]]>
+        </isNotNull>
+        <isNotNull property="logicWarehouseId" prepend=",">
+            <![CDATA[ logic_warehouse_id = #logicWarehouseId#]]>
+        </isNotNull>
+    </sql>
+
+    <insert id="insertArrivalNoticeDetail" parameterClass="arrivalNoticeDetailDO">
+        insert into arrival_notice_detail(asn_id,warehouse_code,item_id,price,remark,gmt_create,gmt_modified,
+        feature,brand_id,unit,spec,plan_package_quantity,actual_package_quantity,version,item_code,logic_warehouse_id)
+        values(#asnId#,#warehouseCode#,#itemId#,#price#,#remark#,now(),now(),#feature#,#brandId#,#unit#,
+        #spec#,#planPackageQuantity#,#actualPackageQuantity#,#version#,#itemCode#,#logicWarehouseId#)
+	    <selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+
+    <!--批量插入-->
+    <insert id="insertListData">
+        insert into arrival_notice_detail(asn_id,warehouse_code,item_id,price,remark,gmt_create,gmt_modified,
+        feature,brand_id,unit,spec,plan_package_quantity,actual_package_quantity,version,item_code,logic_warehouse_id)
+        values
+        <iterate conjunction="," property="list">
+            (#list[].asnId#,#list[].warehouseCode#,#list[].itemId#,#list[].price#,#list[].remark#,now(),now(),#list[].feature#,#list[].brandId#,#list[].unit#,
+            #list[].spec#,#list[].planPackageQuantity#,#list[].actualPackageQuantity#,#list[].version#,#list[].itemCode#,#list[].logicWarehouseId#)
+        </iterate>
+    </insert>
+    <select id="queryArrivalNoticeDetail" resultMap="arrivalNoticeDetailDOResultMap">
+		select * from arrival_notice_detail where asn_id=#asnId# AND warehouse_code = #warehouseCode#
+	</select>
+
+    <!--通过到货通知单id和商品code查询-->
+    <select id="queryByIdAndItemCode" resultMap="arrivalNoticeDetailDOResultMap">
+       select * from arrival_notice_detail where asn_id=#asnId# and item_code=#itemCode# AND warehouse_code = #warehouseCode#
+    </select>
+
+    <!-- 通过到货通知单 商品编号 查询 版本号-->
+    <select id="queryVersion" resultClass="java.lang.Integer">
+        SELECT t.version FROM arrival_notice_detail t
+        WHERE t.asn_id = #asnId# AND item_code = #itemCode# AND warehouse_code = #warehouseCode#
+    </select>
+
+    <!--通过到货通知单id 和 商品编号 更新实收数量-->
+    <update id="updateActualQuantity">
+        UPDATE arrival_notice_detail SET
+        actual_package_quantity = #actualPackageQuantity#,
+        version=version+1
+        WHERE asn_id = #asnId# AND item_code = #itemCode# AND version=#version# AND warehouse_code = #warehouseCode#
+    </update>
+
+    <!--通过通知单id查询 待收明细-->
+    <select id="queryArrivalIncomeDetail"
+            resultMap="arrivalNoticeDetailDOAndQuantityResultMap">
+        SELECT t.*, (t.plan_package_quantity - t.actual_package_quantity ) AS quantity FROM arrival_notice_detail t
+        WHERE t.plan_package_quantity - t.actual_package_quantity > 0 AND t.asn_id = #asnId# AND warehouse_code = #warehouseCode#
+    </select>
+
+    <!--通过通知单id查询 已收明细-->
+    <select id="queryArrivalReceivedDetail" resultMap="arrivalDetailDOResultMap">
+        SELECT t.id,t.asn_id, t.item_id, t.item_code,t.unit, t.spec, t.actual_package_quantity AS quantity FROM
+        arrival_notice_detail t
+        WHERE t.actual_package_quantity > 0 AND t.asn_id = #asnId# AND warehouse_code = #warehouseCode#
+    </select>
+
+    <!--更新-->
+    <update id="updateArrivalNoticeDetail" parameterClass="arrivalNoticeDetailDO">
+        UPDATE arrival_notice_detail set
+               gmt_modified = now(),
+               version=version+1,
+               item_id = #itemId#,
+               item_code = #itemCode#,
+               price = #price#,
+               remark = #remark#,
+               feature = #feature#,
+               brand_id = #brandId#,
+               unit = #unit#,
+               spec = #spec#,
+               plan_package_quantity = #planPackageQuantity#,
+        actual_package_quantity = #actualPackageQuantity#,
+        logic_warehouse_id = #logicWarehouseId#
+        WHERE id = #id# AND warehouse_code = #warehouseCode# AND asn_id = #asnId#
+    </update>
+</sqlMap>

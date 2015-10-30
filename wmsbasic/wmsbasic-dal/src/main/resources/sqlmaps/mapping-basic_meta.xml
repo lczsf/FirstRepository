@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="basic_meta">
+
+	<typeAlias alias="basicMetaDO" type="com.wdk.wms.basic.daoobject.BasicMetaDO" />
+	<typeAlias alias="metaQueryParameterDO" type="com.wdk.wms.basic.query.parameters.MetaQuery"/>
+
+	<resultMap id="basicMetaDOResultMap" class="basicMetaDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="modifier" column="modifier" />
+		<result property="code" column="code" />
+		<result property="name" column="name" />
+		<result property="value" column="value"/>
+		<result property="operatorId" column="operator_id" />
+		<result property="operatorIp" column="operator_ip" />
+	</resultMap>
+
+	<sql id="doUncertainQueryParams">
+		<dynamic prepend="WHERE">
+			<isNotNull property="code" prepend="AND">
+				<![CDATA[code like CONCAT('%', #code#, '%')]]>
+			</isNotNull>
+			<isNotNull property="name" prepend="AND">
+                <![CDATA[name like CONCAT('%', #name#, '%')]]>
+			</isNotNull>
+		</dynamic>
+	</sql>
+
+	<sql id="metaDataConcat">
+		select group_concat(CONCAT(name,':',value,'') separator ':  ' ) as value, code_id  from basic_metadata group by code_id
+	</sql>
+
+	<sql id="doUpdateCondition">
+			<isNotNull property="gmtCreate" prepend=",">
+              <![CDATA[ gmt_create = #gmtCreate#]]>
+			</isNotNull>
+			<isNotNull property="modifier" prepend=",">
+				<![CDATA[modifier = #modifier#]]>
+			</isNotNull>
+			<isNotNull property="code" prepend=",">
+				<![CDATA[code = #code#]]>
+			</isNotNull>
+			<isNotNull property="name" prepend=",">
+				<![CDATA[name = #name#]]>
+			</isNotNull>
+			<isNotNull property="value" prepend=",">
+				<![CDATA[value = #value#]]>
+			</isNotNull>
+			<isNotNull property="operatorId" prepend=",">
+				<![CDATA[operator_id = #operatorId#]]>
+			</isNotNull>
+			<isNotNull property="operatorIp" prepend=",">
+				<![CDATA[operator_ip = #operatorIp#]]>
+			</isNotNull>
+	</sql>
+
+	<!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			gmt_modified desc
+		</dynamic>
+	</sql>
+
+	<!--插入-->
+	<insert id="insertMeta" parameterClass="basicMetaDO">
+		INSERT INTO basic_meta( gmt_create, gmt_modified, modifier, code, name,value,
+		operator_id, operator_ip)
+		VALUES (NOW(), NOW(), #modifier#, #code#,
+		#name#,#value#,#operatorId#, #operatorIp#)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+
+
+	<!--通过id主键查询-->
+	<select id="queryMetaById" parameterClass="java.lang.Long" resultMap="basicMetaDOResultMap">
+		select * from basic_meta where id = #id#
+	</select>
+	
+	<delete id="deleteMetaById" parameterClass="java.lang.Long">
+		DELETE FROM basic_meta
+		WHERE id = #id#
+	</delete>
+
+	<!--批量删除-->
+	<delete id="deleteMetaByIds" parameterClass="java.lang.String">
+		DELETE FROM basic_meta
+		WHERE id in ($ids$)
+	</delete>
+
+	<!--更新-->
+	<update id="updateMeta" parameterClass="basicMetaDO">
+		UPDATE basic_meta SET
+		gmt_modified = now(),
+		modifier = #modifier#,
+		code = #code#,
+		name = #name#,
+		value = #value#,
+		operator_id = #operatorId#,
+		operator_ip = #operatorIp#
+		WHERE id = #id#
+	</update>
+
+	<!--查询-->
+	<select id="queryMeta" parameterClass="metaQueryParameterDO" resultMap="basicMetaDOResultMap">
+		SELECT * FROM basic_meta
+		<include refid="doUncertainQueryParams"/>
+		<include refid="doUncertainOrderBy"/>
+		<dynamic prepend="limit">
+			<isNotNull property="begin">
+				<isNotNull property="num">
+					#begin#, #num#
+				</isNotNull>
+			</isNotNull>
+		</dynamic>
+	</select>
+
+
+	<!--通过code查询-->
+	<select id="queryMetaByCode" parameterClass="java.lang.String" resultMap="basicMetaDOResultMap">
+		SELECT * FROM basic_meta where code = #code#
+		<include refid="doUncertainOrderBy"/>
+	</select>
+
+	<!--查询总数-->
+	<select id="queryMetaCount" parameterClass="metaQueryParameterDO" resultClass="java.lang.Integer">
+		select count(*) FROM basic_meta
+		<include refid="doUncertainQueryParams"/>
+	</select>
+
+	<!--两边连查  弃用-->
+	<!--	<select id="queryResultMetaAndMetaData" parameterClass="metaQueryParameterDO" resultMap="resultMetaAndMetaDataMap">
+            select t.id, t.gmt_create, t.gmt_modified, t.name, t.code, t.operator_id, td.value, td.code_id FROM basic_meta t
+    left join (<include refid="metaDataConcat"/> ) td on td.code_id = t.id
+            <include refid="doUncertainQueryParams" />
+            ORDER BY t.id
+            limit $begin$, $num$
+        </select>-->
+
+	<!--两边连查总数 启用-->
+	<select id="queryResultMetaAndMetaDataCount" resultClass="java.lang.Integer">
+		select count(*) FROM basic_meta t left join (<include refid="metaDataConcat" />) td
+		on td.code_id = t.id
+	</select>
+
+</sqlMap>

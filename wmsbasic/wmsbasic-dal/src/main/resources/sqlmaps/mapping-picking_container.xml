@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="picking_container">
+
+        <typeAlias alias="pickingContainerDO" type="com.wdk.wms.basic.daoobject.PickingContainerDO"/>
+
+        <resultMap id="pickingContainerDOResultMap" class="pickingContainerDO">
+            <result property="id" column="id"/>
+            <result property="gmtCreate" column="gmt_create"/>
+            <result property="gmtModified" column="gmt_modified"/>
+            <result property="containerCode" column="container_code"/>
+            <result property="pickingOrderId" column="picking_order_id"/>
+            <result property="operatorId" column="operator_id"/>
+            <result property="cabinetId" column="cabinet_id"/>
+            <result property="status" column="status"/>
+            <result property="warehouseId" column="warehouse_id"/>
+            <result property="warehouseCode" column="warehouse_code"/>
+            <result property="responsibleId" column="responsible_id"/>
+            <result property="waveId" column="wave_id"/>
+        </resultMap>
+
+    <!--查询条件-->
+        <sql id="doUncertainQueryParams">
+            <dynamic>
+                <isNotEqual property="id" compareValue="0" prepend="and">
+                    id=#id#
+                </isNotEqual>
+                <isNotNull property="gmtCreate" prepend="and">
+                    gmt_create=to_date(#gmtCreate#,'YYYY-MM-DD')
+                </isNotNull>
+                <isNotNull property="gmtModified" prepend="and">
+                    gmt_modified=to_date(#gmtModified#,'YYYY-MM-DD')
+                </isNotNull>
+                <isNotNull property="containerCode" prepend="and">
+                    container_code like '%'||#containerCode#||'%'
+                </isNotNull>
+                <isNotEqual property="pickingOrderId" compareValue="0" prepend="and">
+                    picking_order_id=#pickingOrderId#
+                </isNotEqual>
+                <isNotEqual property="operatorId" compareValue="0" prepend="and">
+                    operator_id=#operatorId#
+                </isNotEqual>
+                <isNotEqual property="cabinetId" compareValue="0" prepend="and">
+                    cabinet_id=#cabinetId#
+                </isNotEqual>
+                <isNotEqual property="status" compareValue="0" prepend="and">
+                    status=#status#
+                </isNotEqual>
+                <isNotEqual property="warehouse_id" compareValue="0" prepend="and">
+                    warehouse_id=#warehouseId#
+                </isNotEqual>
+                <isNotEqual property="warehouseCode" compareValue="0" prepend="and">
+                    warehouse_code=#warehouseCode#
+                </isNotEqual>
+            </dynamic>
+        </sql>
+    <!-- select 基本语句 -->
+    <select id="queryPickingContainerDO" parameterClass="pickingContainerDO" resultMap="pickingContainerDOResultMap">
+        select *
+            from picking_container WHERE 1 = 1
+            <include refid="doUncertainQueryParams"/>
+        </select>
+
+    <!-- select count() 基本语句 -->
+        <select id="queryCount" parameterClass="pickingContainerDO" resultClass="java.lang.Integer">
+            select count(1) from picking_container
+            where 1 = 1
+            <include refid="doUncertainQueryParams"/>
+        </select>
+
+    <!-- insert into 基本语句 -->
+        <insert id="insertPickingContainerDO" parameterClass="pickingContainerDO">
+            insert into picking_container(gmt_create,gmt_modified,container_code,picking_order_id,operator_id,
+            cabinet_id,status,warehouse_code,warehouse_id,responsible_id,wave_id)
+            values(now(),now(),#containerCode#,#pickingOrderId#,#operatorId#,
+            #cabinetId#,0,#warehouseCode#,#warehouseId#,#responsibleId#,#waveId#)
+            <selectKey keyProperty="id" resultClass="java.lang.Long">
+                SELECT
+                LAST_INSERT_ID() AS value
+            </selectKey>
+        </insert>
+
+    <!-- update 基本语句 -->
+        <update id="updatePickingContainerDO" parameterClass="pickingContainerDO">
+            update picking_container
+            set
+            gmt_modified=now(),
+            container_code=#containerCode#,
+            picking_order_id=#pickingOrderId#,
+            operator_id=#operatorId#,
+            cabinet_id=#cabinetId#,
+            where id = #id# AND warehouse_code=#warehouseCode# AND warehouse_id = #warehouseId#
+        </update>
+
+
+    <!--通过容器code和拣货单id 查询-->
+    <select id="queryByContainerCodeAndPicOrderId" resultMap="pickingContainerDOResultMap">
+        SELECT * FROM picking_container
+        WHERE 1=1
+        <isNotNull property="containerCode">
+            AND container_code = #containerCode#
+        </isNotNull>
+            AND picking_order_id = #pickingOrderId#
+            AND warehouse_code=#warehouseCode#
+            AND warehouse_id = #warehouseId#
+    </select>
+
+    <!--更新状态 并关联库位-->
+    <update id="updateStatusAndCabinet">
+        UPDATE picking_container
+        SET
+        gmt_modified=now(),
+        status=#status#
+        <isNotNull property="cabinetId" prepend=",">
+            cabinet_id=#cabinetId#
+        </isNotNull>
+        WHERE id=#id# AND warehouse_code=#warehouseCode# AND warehouse_id = #warehouseId#
+    </update>
+
+    <!--通过波次id 和 容器code 查询-->
+    <select id="queryByWaveIdAndContainerCode" resultMap="pickingContainerDOResultMap">
+        SELECT * FROM picking_container
+        WHERE 1=1
+        AND warehouse_code=#warehouseCode#
+        AND warehouse_id = #warehouseId#
+        <isNotNull property="containerCode">
+            AND container_code = #containerCode#
+        </isNotNull>
+        <isNotNull property="waveId">
+            AND wave_id = #waveId#
+        </isNotNull>
+        <isNotNull property="status">
+            AND status = #status#
+        </isNotNull>
+        ORDER BY gmt_modified DESC
+    </select>
+
+    <!-- 通过id查询-->
+    <select id="queryById" resultMap="pickingContainerDOResultMap">
+        SELECT * FROM picking_container
+        WHERE id = #id#
+        AND warehouse_code=#warehouseCode#
+        AND warehouse_id = #warehouseId#
+    </select>
+    
+    <!-- 更新拣货装箱单 -->   
+    <update id="updatePickingContainerStatus" >
+	    UPDATE picking_container
+	    <dynamic prepend="SET">	     
+	    	<isNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNull>
+			<isNotNull property="operatorId" prepend=",">
+	        <![CDATA[  
+	        operator_id = #operatorId#
+	        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend=",">
+		        <![CDATA[  
+		        status = #status#  
+		        ]]>
+			</isNotNull>
+	    </dynamic>
+		WHERE wave_id = #waveId#
+		AND warehouse_code=#warehouseCode#
+        AND warehouse_id = #warehouseId#
+	</update>
+
+
+    <!--通过拣货单id查询-->
+    <select id="queyrByPickingOrderId" resultMap="pickingContainerDOResultMap">
+         SELECT * FROM picking_container
+        WHERE picking_order_id = #pickingOrderId#
+        AND warehouse_code=#warehouseCode#
+        AND warehouse_id = #warehouseId#
+    </select>
+    
+</sqlMap>

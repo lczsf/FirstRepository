@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="basic_partner_wh">
+
+	<typeAlias alias="basicPartnerWhDO" type="com.wdk.wms.basic.daoobject.BasicPartnerWhDO" />
+	<typeAlias alias="partnerWhQuery" type="com.wdk.wms.basic.query.parameters.PartnerWhQuery" />
+	<resultMap id="basicPartnerWhDOResultMap" class="basicPartnerWhDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="status" column="status" />
+		<result property="partnerId" column="partner_id" />
+		<result property="type" column="type" />
+		<result property="whId" column="wh_id" />
+		<result property="relation" column="relation" />
+		<result property="remark" column="remark" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="partnerType" column="partner_type" />
+		<result property="operatorId" column="operator_id" />
+		<result property="operatorIp" column="operator_ip" />
+		<result property="partnerName" column="partnerName" />
+		<result property="warehouseName" column="warehouseName" />
+		<result property="warehouseAreaName" column="warehouseAreaName" />
+	</resultMap>
+	
+    <sql id="doUncertainQueryParams">
+		<dynamic prepend="WHERE">
+			<isNotNull property="name" prepend="AND">
+        <![CDATA[  
+        a1.name = #name# 
+        ]]>
+			</isNotNull>
+			<isNotNull property="relation" prepend="AND">
+        <![CDATA[  
+        a1.relation = #relation#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend="AND">
+        <![CDATA[  
+        a1.status = #status#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="warehouseId" prepend="AND">
+        <![CDATA[  
+        a1.warehouse_id = #warehouseId#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="type" prepend="AND">
+        <![CDATA[  
+        a1.type = #type#  
+        ]]>
+			</isNotNull>
+			<isNotEmpty prepend="AND">
+			a1.partner_id=a2.id  and a1.warehouse_id = a3.id 
+			</isNotEmpty>
+		   <isEqual property="type" compareValue="0" prepend="AND">
+		    a1.wh_id=a4.id 
+		   </isEqual>
+		    <isEqual property="type" compareValue="1" prepend="AND">
+		    a1.wh_id=a5.id and a5.warehouse_area_id=a4.id 
+		   </isEqual>
+		</dynamic>
+	</sql>
+	
+	<!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			a1.gmt_modified desc
+		</dynamic>
+	</sql>
+	
+	<select id="queryPartnerWh" resultMap="basicPartnerWhDOResultMap"
+		parameterClass="partnerWhQuery">
+		SELECT 
+		a1.*,a2.name partnerName,a3.name warehouseName,a4.code warehouseAreaName
+	    FROM basic_partner_wh a1,basic_partner a2,basic_warehouse a3,basic_warehouse_area a4
+	    <isEqual property="type" compareValue="1" prepend=",">
+	    basic_cabinet a5 
+	    </isEqual>
+	    <include refid="doUncertainQueryParams" />
+	    UNION
+	    
+	    SELECT 
+		a1.*,a2.name partnerName,a3.name warehouseName,a4.code warehouseAreaName
+	    FROM basic_partner_wh a1,basic_partner a2,basic_warehouse a3,basic_warehouse_area a4
+	    <isEqual property="type" compareValue="1" prepend=",">
+	    basic_cabinet a5 
+	    </isEqual>
+	    <include refid="doUncertainQueryParams" />
+	    
+		<dynamic prepend="limit">
+			<isEqual property="isDownload" compareValue="false">
+        <![CDATA[  
+        #begin#, #num#  
+        ]]>
+			</isEqual>
+		</dynamic>
+	</select>
+	
+	<insert id="insertPartnerWh" parameterClass="basicPartnerWhDO">
+		INSERT INTO basic_partner_wh( gmt_create, gmt_modified, status,
+		partner_id,type,wh_id,relation,remark,warehouse_id,partner_type,operator_id,operator_ip)
+		VALUES (NOW(), NOW(), #status#,
+		#partnerId#,#type#,#whId#,#relation#,#remark#,#warehouseId#,#partnerType#,#operatorId#,#operatorIp#)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+	
+	<update id="updatePartnerWh" parameterClass="basicPartnerWhDO">
+	   UPDATE basic_partner_wh
+	   SET gmt_modified = now(), wh_id = #whId#, relation = #relation#,operator_id = #operatorId#,
+	   operator_ip = #operatorIp#
+	   where id=#id#
+	   <!--  
+         <dynamic prepend="SET">
+	      <isNotNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNotNull>
+	       <isNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNull>
+	       <isNotNull property="whId" prepend=",">
+	        <![CDATA[  
+	        wh_id = #whId#
+	        ]]>
+	       </isNotNull>
+	       <isNotNull property="relation" prepend=",">
+	        <![CDATA[  
+	        relation = #relation#
+	        ]]>
+	       </isNotNull>
+	       <isNotNull property="operatorId" prepend=",">
+	        <![CDATA[  
+	        operator_id = #operatorId#
+	        ]]>
+	       </isNotNull>
+	       <isNotNull property="operatorIp" prepend=",">
+	        <![CDATA[  
+	        operator_ip = #operatorIp#
+	        ]]>
+	       </isNotNull>
+	      </dynamic>
+	      -->
+	</update>
+	
+	<select id="queryPartnerWhCount" resultClass="java.lang.Integer"
+		parameterClass="partnerWhQuery">
+		select count(*) from (
+		SELECT 
+		a1.*,a2.name partnerName,a3.name warehouseName,a4.code warehouseAreaName
+	    FROM basic_partner_wh a1,basic_partner a2,basic_warehouse a3,basic_warehouse_area a4
+	    <isEqual property="type" compareValue="1" prepend=",">
+	    basic_cabinet a5 
+	    </isEqual>
+	    <include refid="doUncertainQueryParams" />
+	    UNION
+	    
+	    SELECT 
+		a1.*,a2.name partnerName,a3.name warehouseName,a4.code warehouseAreaName
+	    FROM basic_partner_wh a1,basic_partner a2,basic_warehouse a3,basic_warehouse_area a4
+	    <isEqual property="type" compareValue="1" prepend=",">
+	    basic_cabinet a5 
+	    </isEqual>
+	    <include refid="doUncertainQueryParams" />
+	    ) a
+	</select>
+	
+	<update id="updatePartnerWhStatus" >
+	    UPDATE basic_partner_wh
+	    <dynamic prepend="SET">	     
+	    <isNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNull>
+	       <isNotNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+			</isNotNull>
+			<isNotNull property="operatorId" prepend=",">
+	        <![CDATA[  
+	        operator_id = #operatorId#
+	        ]]>
+			</isNotNull>
+			<isNotNull property="operatorIp" prepend=",">
+	        <![CDATA[  
+	        operator_ip = #operatorIp#
+	        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend=",">
+        <![CDATA[  
+        status = #status#  
+        ]]>
+			</isNotNull>
+			WHERE id IN
+		  ($idList$)
+	    </dynamic>
+	</update>
+</sqlMap>

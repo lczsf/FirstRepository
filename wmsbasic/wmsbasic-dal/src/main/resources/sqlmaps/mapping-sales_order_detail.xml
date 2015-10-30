@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="sales_order_detail">
+
+	<typeAlias alias="salesOrderDetailDO" type="com.wdk.wms.basic.daoobject.SalesOrderDetailDO" />
+	<typeAlias alias="salesOrderDetailQuery" type="com.wdk.wms.basic.query.parameters.SalesOrderDetailQuery" />
+    
+	<resultMap id="salesOrderDetailResultMap" class="salesOrderDetailDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="salesOrderId" column="sales_order_id" />
+		<result property="subOrderId" column="sub_order_id" />
+        <result property="orderStatus" column="order_status"/>
+		<result property="itemId" column="item_id" />
+		<result property="itemName" column="item_name" />
+		<result property="itemUnitPrice" column="item_unit_price" />
+		<result property="amount" column="amount" />
+		<result property="mainUnit" column="main_unit" />
+		<result property="mainBuyNumber" column="main_buy_number" />
+		<result property="mainSortNumber" column="main_sort_number" />
+		<result property="marketingUnit" column="marketing_unit" />
+		<result property="marketingBuyNumber" column="marketing_buy_number" />
+		<result property="marketingSortNumber" column="marketing_sort_number" />
+		<result property="accessorialService" column="accessorial_service" />
+		<result property="waveId" column="wave_id" />
+		<result property="outOperationMode" column="out_operation_mode" />
+		<result property="warehouseCode" column="warehouse_code" />
+		<result property="pickingUnit" column="picking_unit" />
+		<result property="pickingBuyNumber" column="picking_buy_number" />
+		<result property="pickingSortNumber" column="picking_sort_number" />
+        <result property="preferentialAmount" column="preferential_amount"/>
+        <result property="refundAmount" column="refund_amount"/>
+	</resultMap>
+
+	<!--查询条件 -->
+          <sql id="queryParam">
+		<dynamic prepend="WHERE">
+			<isNotNull property="salesOrderId" prepend="AND">
+                <![CDATA[a1.sales_order_id =#salesOrderId#]]>
+			</isNotNull>
+			<isNotNull property="warehouseCode" prepend="AND">
+                <![CDATA[a1.warehouse_code =#warehouseCode#]]>
+			</isNotNull>
+			<isNotNull property="waveId" prepend="AND">
+                <![CDATA[a1.wave_id =#waveId#]]>
+			</isNotNull>
+			</dynamic>
+			</sql>
+    <!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			a1.gmt_modified desc
+		</dynamic>
+	</sql>
+	
+	<insert id="insertSalesOrderDetail" parameterClass="salesOrderDetailDO">
+        insert into sales_order_detail(gmt_create,gmt_modified,sales_order_id,sub_order_id,order_status,
+		item_id,item_name,item_unit_price,amount,main_unit,main_buy_number,main_sort_number,marketing_unit,
+		marketing_buy_number,marketing_sort_number,accessorial_service,warehouse_code,wave_id,out_operation_mode,
+        picking_unit,picking_buy_number,picking_sort_number,preferential_amount,refund_amount)
+	values(now(),now(),#salesOrderId#,#subOrderId#,1,
+	#itemId#,#itemName#,#itemUnitPrice#,#amount#,#mainUnit#,#mainBuyNumber#,#mainSortNumber#,#marketingUnit#,
+	#marketingBuyNumber#,#marketingSortNumber#,#accessorialService#,#warehouseCode#,#waveId#,#outOperationMode#,
+        #pickingUnit#,#pickingBuyNumber#,#pickingSortNumber#,#preferentialAmount#,#refundAmount#
+	)
+	<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+
+	<!--查询列表,支持分页和不分页 -->
+	<select id="querySalesOrderDetail" resultMap="salesOrderDetailResultMap"
+		parameterClass="salesOrderDetailQuery">
+		SELECT a1.*
+		FROM sales_order_detail a1
+		<include refid="queryParam" />
+		<include refid="doUncertainOrderBy" />
+		<dynamic prepend="limit">
+			<isNotEqual property="isDownload" compareValue="true">
+                <![CDATA[ #begin#, #num#]]>
+			</isNotEqual>
+		</dynamic>
+	</select>
+   
+   <!-- 查询列表总数 -->
+
+   <select id="querySalesOrderDetailCount"  resultClass="java.lang.Integer" parameterClass="salesOrderDetailQuery">
+		SELECT count(*)
+		FROM sales_order_detail a1
+		<include refid="queryParam" />
+	</select>
+   
+   <update id="updateStatusById" >
+	update sales_order_detail
+		set   order_status=#status#
+		where id = #id# AND warehouse_code=#warehouseCode# AND wave_id =#waveId#
+	</update>
+	
+
+    <!-- 通过波次id查询-->
+    <select id="queryByWaveId" resultMap="salesOrderDetailResultMap">
+        SELECT * FROM sales_order_detail
+        WHERE wave_id=#waveId# 
+	    <isNotNull property="salesOrderId">
+	         AND sales_order_id =#salesOrderId#
+	    </isNotNull>
+        AND warehouse_code=#warehouseCode#
+        AND order_status = #status#
+    </select>
+    
+    
+    <select id="queryByDetailIdAndWaveId" resultMap="salesOrderDetailResultMap">
+        SELECT * FROM sales_order_detail
+        WHERE wave_id=#waveId# AND id=#childOrderId#
+        AND warehouse_code=#warehouseCode#
+        
+    </select>
+    
+    <select id="queryDetailBySubOrderId" resultMap="salesOrderDetailResultMap">
+       SELECT * FROM  sales_order_detail WHERE wave_id=#waveId# AND sub_order_id=#subOrderId#
+       AND warehouse_code=#warehouseCode#
+    </select>
+    
+      <select id="queryByWaveIdNoStatus" resultClass="java.lang.Integer">
+        SELECT count(*) FROM sales_order_detail
+        WHERE wave_id=#waveId# 
+        AND warehouse_code=#warehouseCode#
+    </select>
+    
+    <update id="updateSortQuanity">
+       update sales_order_detail 
+     <dynamic prepend="SET">
+	  <isNotNull property="mainSortNumber" prepend=",">
+	       main_sort_number=  #mainSortNumber#
+	  </isNotNull>
+	  <isNotNull property="marketingSortNumber" prepend=",">
+	       marketing_sort_number=  #marketingSortNumber#
+	  </isNotNull>
+	  <isNotNull property="pickingSortNumber" prepend=",">
+	       picking_sort_number=  #pickingSortNumber#
+	  </isNotNull>
+	  </dynamic>
+	  where id=#id# AND wave_id=#waveId# AND warehouse_code=#warehouseCode#
+    </update>
+    
+    <update id="updateRefundAmount">
+       update sales_order_detail set refund_amount=#refundAmount#
+        where id=#id# AND wave_id=#waveId# AND warehouse_code=#warehouseCode#
+    </update>
+    
+    <update id="updateMainSortNumberByWaveId">
+     update sales_order_detail set main_sort_number=main_buy_number where
+     wave_id=#waveId# AND warehouse_code=#warehouseCode# 
+    </update>
+</sqlMap>

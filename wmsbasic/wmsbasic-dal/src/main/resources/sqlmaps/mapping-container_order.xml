@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="container_order">
+
+	<typeAlias alias="containerOrderDO"
+		type="com.wdk.wms.basic.daoobject.ContainerOrderDO" />
+	<typeAlias alias="containerOrderQuery"
+		type="com.wdk.wms.basic.query.parameters.ContainerOrderQuery" />
+
+	<resultMap id="containerOrderDOResultMap" class="containerOrderDO">
+		<result property="asnId" column="asn_id" />
+		<result property="bizOrderCode" column="biz_order_code"/>
+		<result property="cabinetId" column="cabinet_id" />
+		<result property="warehouseId" column="warehouse_id" />
+        <result property="warehouseCode" column="warehouse_code"/>
+		<result property="ownerId" column="owner_id" />
+		<result property="supplierId" column="supplier_id" />
+		<result property="remark" column="remark" />
+		<result property="isRf" column="is_rf" />
+		<result property="status" column="status" />
+		<result property="feature" column="feature" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="id" column="id" />
+		<result property="code" column="code" />
+		<result property="containerCode" column="container_code" />
+		<result property="operationId" column="operation_id" />
+        <result property="responsibleId" column="responsible_id"/>
+	</resultMap>
+
+	<!--查询条件 -->
+	<sql id="queryParam">
+		<dynamic prepend="WHERE">
+			<isNotNull property="asnId" prepend="AND">
+                <![CDATA[asn_id =#asnId#]]>
+			</isNotNull>
+			<isNotNull property="warehouseId" prepend="AND">
+                <![CDATA[warehouse_id=#warehouseId#]]>
+			</isNotNull>
+            <isNotNull property="warehouseCode" prepend="AND">
+                <![CDATA[warehouse_code=#warehouseCode#]]>
+            </isNotNull>
+			<isNotNull property="ownerId" prepend="AND">
+                <![CDATA[owner_id =#ownerId#]]>
+			</isNotNull>
+			<isNotNull property="status" prepend="AND">
+                <![CDATA[status =#status#]]>
+			</isNotNull>
+			<isNotNull property="code" prepend="AND">
+                <![CDATA[code =#code#]]>
+			</isNotNull>
+			<isNotNull property="bizOrderCode" prepend="AND">
+				<![CDATA[biz_order_code =#bizOrderCode#]]>
+			</isNotNull>
+			<isNotNull property="supplierId" prepend="AND">
+				<![CDATA[supplier_id =#supplierId#]]>
+			</isNotNull>
+			<isNotNull property="containerCode" prepend="AND">
+                <![CDATA[container_code =#containerCode#]]>
+			</isNotNull>
+			<isNotNull property="beginDate" prepend="AND">
+                <![CDATA[gmt_create >= #beginDate#]]>
+			</isNotNull>
+			<isNotNull property="endDate" prepend="AND">
+                <![CDATA[gmt_create <= #endDate#]]>
+			</isNotNull>
+		</dynamic>
+	</sql>
+
+	<!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			gmt_modified desc
+		</dynamic>
+	</sql>
+
+	<insert id="insertContainerOrder" parameterClass="containerOrderDO">
+        insert into
+        container_order(asn_id,cabinet_id,warehouse_id,warehouse_code,owner_id,supplier_id,is_rf,status,feature,
+        gmt_create,gmt_modified,code,container_code,operation_id,biz_order_code,remark,responsible_id)
+        values(#asnId#,#cabinetId#,#warehouseId#,#warehouseCode#,#ownerId#,#supplierId#,#isRf#,1,#feature#,
+        now(),now(),#code#,#containerCode#,#operationId#,#bizOrderCode#,#remark#,#responsibleId#)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+
+	<!--查询列表,支持分页和不分页 -->
+	<select id="queryContainerOrder" resultMap="containerOrderDOResultMap"
+		parameterClass="containerOrderQuery">
+		SELECT *
+		FROM container_order
+		<include refid="queryParam" />
+		<include refid="doUncertainOrderBy"/>
+		<dynamic prepend="limit">
+			<isNotEqual property="isDownload" compareValue="true">
+                <![CDATA[ #begin#, #num#]]>
+			</isNotEqual>
+		</dynamic>
+	</select>
+
+	<!--总记录数-->
+	<select id="queryContainerCount" parameterClass="containerOrderQuery" resultClass="java.lang.Integer">
+		SELECT count(*) FROM container_order
+		<include refid="queryParam"/>
+	</select>
+
+    <!--查询装箱单 状态为暂存 2-->
+    <select id="queryByWarehouseIdAndCode" resultMap="containerOrderDOResultMap">
+        SELECT * FROM container_order t
+        WHERE t.warehouse_id=#warehouseId# AND t.container_code =#containerCode# AND t.status=#status# AND t.warehouse_code=#warehouseCode#
+    </select>
+
+    <select id="queryById" resultMap="containerOrderDOResultMap">
+        SELECT * FROM container_order t
+        WHERE t.id=#id# AND t.warehouse_id=#warehouseId# AND t.warehouse_code=#warehouseCode#
+    </select>
+
+    <!--通过到货通知单id 和 容器编号 查询 -->
+    <select id="queryByAsnIdAndCode" resultMap="containerOrderDOResultMap">
+        SELECT * FROM container_order t
+        WHERE t.asn_id = #asnId#
+        AND t.container_code = #containerCode#
+        AND t.warehouse_id=#warehouseId#
+        AND t.warehouse_code=#warehouseCode#
+        AND t.status = 1
+    </select>
+
+    <!--通过到货通知单id 和 容器编号 查询 状态非完成 != 3 -->
+    <select id="queryByAsnIdAndCodeNotComplete" resultMap="containerOrderDOResultMap">
+        SELECT * FROM container_order t
+        WHERE t.asn_id = #asnId#
+        AND t.container_code = #containerCode#
+        AND t.warehouse_id=#warehouseId#
+        AND t.warehouse_code=#warehouseCode#
+        AND t.status != 3
+    </select>
+
+    <!--通过id更新状态-->
+    <update id="updateOrderStatus">
+        UPDATE container_order SET
+        status = #status#,
+        operation_id = #operationId#,
+        gmt_modified = now()
+        WHERE id = #id# AND warehouse_id=#warehouseId# AND warehouse_code=#warehouseCode#
+    </update>
+
+    <!--通过通知单id 和 容器编号 更新状态 并关联默认库位-->
+    <update id="updateStatusAndAssociatCabinet">
+        UPDATE container_order SET
+        status = 2,
+        cabinet_id = #cabinetId#,
+        operation_id = #operationId#,
+        gmt_modified = now()
+        WHERE asn_id = #asnId# AND container_code=#containerCode# AND warehouse_id=#warehouseId# AND warehouse_code=#warehouseCode#
+    </update>
+
+    <!-- 通过通知单id 查询-->
+    <select id="queryByAsnId" resultMap="containerOrderDOResultMap">
+        SELECT * FROM container_order
+        WHERE asn_id = #asnId# AND warehouse_id=#warehouseId# AND warehouse_code=#warehouseCode#
+    </select>
+
+    <!-- 通过id更新操作人-->
+    <update id="updateOperatorId">
+        UPDATE container_order SET
+        operation_id = #operationId#
+        WHERE id = #id# AND warehouse_id=#warehouseId# AND warehouse_code=#warehouseCode#
+    </update>
+</sqlMap>

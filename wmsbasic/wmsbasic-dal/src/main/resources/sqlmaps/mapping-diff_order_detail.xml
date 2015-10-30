@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="diff_order_detail">
+
+	<typeAlias alias="diffOrderDetailDO" type="com.wdk.wms.basic.daoobject.DiffOrderDetailDO" />
+	<typeAlias alias="diffOrderDetailQueryParameterDO" type="com.wdk.wms.basic.query.parameters.DiffOrderDetailQuery"/>
+	
+	<resultMap id="diffOrderDetailResultMap" class="diffOrderDetailDO">
+	<result property="id" column="id" />
+	<result property="gmtCreate" column="gmt_create" />
+	<result property="gmtModified" column="gmt_modified" />	
+	<result property="sourceOrderDetailId" column="source_order_detail_id" />	
+	<result property="diffOrderId" column="diff_order_id" />	
+	<result property="cabinetId" column="cabinet_id" />
+	<result property="itemId" column="item_id" />	
+	<result property="itemBatchId" column="item_batch_id" />	
+	<result property="unit" column="unit" />
+	<result property="spec" column="spec" />	
+	<result property="diffPackageQuantity" column="diff_package_quantity" />
+	<result property="itemCode" column="item_code" />	
+	<result property="warehouseCode" column="warehouse_code" />
+	</resultMap>
+	
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			a1.gmt_modified desc
+		</dynamic>
+	</sql>
+	
+	<insert id="insertDiffOrderDetail" parameterClass="diffOrderDetailDO">
+	insert into diff_order_detail(gmt_create,gmt_modified,source_order_detail_id,diff_order_id,cabinet_id,item_id,
+	item_batch_id,unit,spec,diff_package_quantity,warehouse_code,item_code)
+	values(now(),now(),#sourceOrderDetailId#,#diffOrderId#,#cabinetId#,#itemId#,
+	#itemBatchId#,#unit#,#spec#,#diffPackageQuantity#,#warehouseCode#,#itemCode#)
+	   <selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+	
+	<select id="queryDiffOrderDetail" parameterClass="diffOrderDetailQueryParameterDO" resultMap="diffOrderDetailResultMap">
+	SELECT a1.* FROM diff_order_detail a1 
+	<dynamic prepend="WHERE">
+	<isNotNull property="diffOrderId" prepend="AND">
+        <![CDATA[  
+         a1.diff_order_id=#diffOrderId#
+        ]]>
+	</isNotNull>
+	<isNotNull property="warehouseCode" prepend="AND">
+        <![CDATA[  
+         a1.warehouse_code=#warehouseCode#
+        ]]>
+	</isNotNull>
+	 </dynamic>
+	 <include refid="doUncertainOrderBy" />
+	 <dynamic prepend="limit">
+			<isEqual property="isDownload" compareValue="false">
+        <![CDATA[  
+        #begin#, #num#  
+        ]]>
+			</isEqual>
+		</dynamic>
+	</select>
+	
+	<select id="queryDiffOrderDetailCount" parameterClass="diffOrderDetailQueryParameterDO" resultClass="java.lang.Integer">
+	SELECT count(1) FROM diff_order_detail a1  
+    <dynamic prepend="WHERE">
+	<isNotNull property="diffOrderId" prepend="AND">
+        <![CDATA[  
+         a1.diff_order_id=#diffOrderId#
+        ]]>
+	</isNotNull>
+	<isNotNull property="warehouseCode" prepend="AND">
+        <![CDATA[  
+         a1.warehouse_code=#warehouseCode#
+        ]]>
+	</isNotNull>
+	 </dynamic>
+	</select>
+	
+	<select id="queryByDiffOrderId"  resultMap="diffOrderDetailResultMap">
+	 SELECT * FROM diff_order_detail WHERE diff_order_id=#diffOrderId#  
+        AND warehouse_code=#warehouseCode#
+	</select>
+</sqlMap>

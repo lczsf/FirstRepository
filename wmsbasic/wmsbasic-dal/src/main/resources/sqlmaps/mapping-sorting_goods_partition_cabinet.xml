@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="sorting_goods_partition_cabinet">
+    <typeAlias alias="sortingGoodsPartitionCabinetDO" type="com.wdk.wms.basic.daoobject.SortingGoodsPartitionCabinetDO"/>
+    <typeAlias alias="sortingGoodsPartitionCabinetQueryParameterDO" type="com.wdk.wms.basic.query.parameters.SortingGoodsPartitionCabinetQuery"/>
+     
+      <resultMap id="sortingGoodsPartitionCabinetResultMap" class="sortingGoodsPartitionCabinetDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="sortingGoodsPartitionCode" column="sorting_goods_partition_code" />
+		<result property="cabinetId" column="cabinet_id" />
+		<result property="warehouseId" column="warehouse_id" />
+	  </resultMap>
+<!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			 gmt_modified desc
+		</dynamic>
+	</sql>
+	
+<select id="querySortingGoodsPartitionCabinet" parameterClass="sortingGoodsPartitionCabinetQueryParameterDO" resultMap="sortingGoodsPartitionCabinetResultMap">
+	select *
+	from sorting_goods_partition_cabinet  
+		<dynamic prepend="WHERE">
+			<isNotNull property="sortingGoodsPartitionCode"   prepend="and">
+				sorting_goods_partition_code = #sortingGoodsPartitionCode#
+			</isNotNull>
+			<isNotNull property="warehouseId"   prepend="and">
+				warehouse_id = #warehouseId#
+			</isNotNull>
+		</dynamic>
+		<include refid="doUncertainOrderBy" />
+		<dynamic prepend="limit">
+			<isNotEqual property="isDownload" compareValue="true">
+                <![CDATA[ #begin#, #num#]]>
+			</isNotEqual>
+		</dynamic>
+	</select>
+	
+	<select id="querySortingGoodsPartitionCabinetCount" parameterClass="sortingGoodsPartitionCabinetQueryParameterDO" resultClass="java.lang.Integer">
+	select count(1) from sorting_goods_partition_cabinet
+		<dynamic prepend="WHERE">
+			<isNotNull property="sortingGoodsPartitionCode"   prepend="and">
+				sorting_goods_partition_code = #sortingGoodsPartitionCode#
+			</isNotNull>
+			<isNotNull property="warehouseId"   prepend="and">
+				warehouse_id = #warehouseId#
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+	<!-- insert into 基本语句 -->
+	<insert id="insertSortingGoodsPartitionCabinet" parameterClass="sortingGoodsPartitionCabinetDO">
+	insert into sorting_goods_partition_cabinet(gmt_create,gmt_modified,sorting_goods_partition_code,cabinet_id,warehouse_id,type)
+	values(now(),now(),#sortingGoodsPartitionCode#,#cabinetId#,#warehouseId#,#type#)
+	<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+	</selectKey>
+	</insert>
+	
+	<delete id="deleteByWarehouseIdAndPartitionCode">
+	delete from sorting_goods_partition_cabinet where 
+	warehouse_id=#warehouseId# AND sorting_goods_partition_code=#sortingGoodsPartitionCode# 
+	</delete>
+	
+	<select id="queryByWarehouseIdAndPartitionCode"   resultMap="sortingGoodsPartitionCabinetResultMap">
+	select * from sorting_goods_partition_cabinet where 
+    warehouse_id=#warehouseId# AND sorting_goods_partition_code=#sortingGoodsPartitionCode# 
+	</select>
+	
+	<update id="updateSortingGoodsPartitionCabinet" parameterClass="sortingGoodsPartitionCabinetDO">
+	update sorting_goods_partition_cabinet
+		set  gmt_modified=now(),sorting_goods_partition_code=#sortingGoodsPartitionCode#,cabinet_id=#cabinetId#,warehouse_id=#warehouseId#,type=#type#
+		where id = #id# 
+	</update>
+	
+	<select id="queryByCabinetIdAndType" resultClass="java.lang.String">
+	  SELECT sorting_goods_partition_code FROM sorting_goods_partition_cabinet WHERE
+	  warehouse_id=#warehouseId# AND cabinet_id=#cabinetId# AND type=#areaType#
+	</select>
+</sqlMap>

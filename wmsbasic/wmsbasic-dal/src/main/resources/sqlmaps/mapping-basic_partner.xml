@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="basic_partner">
+
+	<typeAlias alias="basicPartnerDO" type="com.wdk.wms.basic.daoobject.BasicPartnerDO" />
+	<typeAlias alias="partnerQuery" type="com.wdk.wms.basic.query.parameters.PartnerQuery" />
+	
+	<resultMap id="basicPartnerDOResultMap" class="basicPartnerDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="code" column="code" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="simpleName" column="simple_name" /> 
+		<result property="status" column="status" />
+		<result property="level" column="level" />
+		<result property="contactAddress" column="contact_address" />
+		<result property="contactName" column="contact_name" />
+		<result property="contactTel" column="contact_tel" />
+		<result property="contactEmail" column="contact_email" />
+		<result property="contactFax" column="contact_fax" /> 
+		<result property="remark" column="remark" />
+		<result property="operatorId" column="operator_id" />
+		<result property="feature" column="feature" />   
+		<result property="partnerType" column="partner_type" />
+		<result property="name" column="name" />
+		<result property="batchRuleId" column="batch_rule_id" />
+		<result property="putawayStrategyId" column="putaway_strategy_id" />
+		<result property="mixStrategyId" column="mix_strategy_id" />
+		<result property="operatorIp" column="operator_ip" />
+		<result property="pickingStrategyId" column="picking_strategy_id" />
+	</resultMap>
+
+	<sql id="updateParam" >
+         <isNotNull property="code" prepend=",">
+                <![CDATA[ code = #code# ]]>
+		</isNotNull>
+		<isNotNull property="warehouseId" prepend=",">
+                <![CDATA[ warehouse_id = #warehouseId# ]]>
+		</isNotNull>
+		<isNotNull property="simpleName" prepend=",">
+                <![CDATA[ simple_name = #simpleName# ]]>
+		</isNotNull> 
+		<isNotNull property="status" prepend=",">
+               <![CDATA[ status = #status# ]]>
+		</isNotNull>
+		<isNotNull property="level" prepend=",">
+               <![CDATA[ level = #level# ]]>
+		</isNotNull>
+		<isNotNull property="contactAddress" prepend=",">
+               <![CDATA[ contact_address = #contactAddress# ]]>
+		</isNotNull>
+		<isNotNull property="contactName" prepend=",">
+               <![CDATA[ contact_name = #contactName# ]]>
+		</isNotNull>
+		<isNotNull property="contactTel" prepend=",">
+               <![CDATA[ contact_tel = #contactTel# ]]>
+		</isNotNull>
+		<isNotNull property="contactEmail" prepend=",">
+               <![CDATA[ contact_email = #contactEmail# ]]>
+		</isNotNull>
+		<isNotNull property="contactFax" prepend=",">
+               <![CDATA[ contact_fax = #contactFax# ]]>
+		</isNotNull> 
+		<isNotNull property="remark" prepend=",">
+               <![CDATA[ remark = #remark# ]]>
+		</isNotNull>
+		<isNotNull property="operatorId" prepend=",">
+               <![CDATA[ operator_id = #operatorId# ]]>
+		</isNotNull>
+		<isNotNull property="feature" prepend=",">
+               <![CDATA[ feature = #feature# ]]>
+		</isNotNull> 
+		<isNotNull property="partnerType" prepend=",">
+               <![CDATA[ partner_type = #partnerType# ]]>
+		</isNotNull>
+		<isNotNull property="name" prepend=",">
+               <![CDATA[ name = #name# ]]>
+		</isNotNull>
+		<isNotNull property="batchRuleId" prepend=",">
+               <![CDATA[ batch_rule_id = #batchRuleId# ]]>
+		</isNotNull>
+		<isNotNull property="mixStrategyId" prepend=",">
+               <![CDATA[ mix_strategy_id = #mixStrategyId# ]]>
+		</isNotNull>
+		<isNotNull property="putawayStrategyId" prepend=",">
+               <![CDATA[ putaway_strategy_id = #putawayStrategyId# ]]>
+		</isNotNull>
+		<isNotNull property="operatorIp" prepend=",">
+               <![CDATA[ operator_ip = #operatorIp# ]]>
+		</isNotNull>
+		<isNotNull property="pickingStrategyId" prepend=",">
+               <![CDATA[ picking_strategy_id = #pickingStrategyId# ]]>
+		</isNotNull>
+	</sql>
+	
+	<!--查询条件-->
+    <sql id="queryParam">
+        <dynamic prepend="WHERE">
+            <isNotNull property="code" prepend="AND">
+                <![CDATA[code =#code#]]>
+            </isNotNull>
+            <isNotNull property="name" prepend="AND">
+                <![CDATA[name like CONCAT('%', #name#, '%')]]>
+            </isNotNull>
+            <isNotNull property="status" prepend="AND">
+                <![CDATA[status =#status#]]>
+            </isNotNull>
+            <isNotNull property="partnerType" prepend="AND">
+                <![CDATA[partner_type =#partnerType#]]>
+            </isNotNull>
+        </dynamic>
+    </sql>
+
+
+    <!--排序条件-->
+    <sql id="doUncertainOrderBy">
+        <dynamic prepend="ORDER BY">
+            gmt_modified desc
+        </dynamic>
+    </sql>
+
+	<insert id="insertPartner" parameterClass="basicPartnerDO">
+		INSERT INTO basic_partner( id, gmt_create, gmt_modified, code,
+		warehouse_id, simple_name,   status, level,
+		contact_address, contact_name, contact_tel,
+		contact_email, contact_fax,
+		  remark, operator_id, feature, 
+		 partner_type,name,batch_rule_id,putaway_strategy_id,mix_strategy_id,operator_ip,
+		picking_strategy_id)
+		VALUES (
+		#id#, now(), now(), #code#, #warehouseId#,
+		#simpleName#,
+	    1, #level#,
+		#contactAddress#,
+		#contactName#,
+		#contactTel#,
+		#contactEmail#,
+		#contactFax#,  
+		#remark#,
+		#operatorId#,
+		#feature#, #partnerType#,#name#,#batchRuleId#,#putawayStrategyId#,#mixStrategyId#,#operatorIp#
+		,#pickingStrategyId#)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+
+    <!--根据id批量删除-->
+	<delete id="deleteBasicPartnerByIds" >
+    <![CDATA[  
+     DELETE FROM basic_partner WHERE id in ($ids$)
+    ]]>
+	</delete>
+	
+	<!--更新操作-->
+	<update id="updateBasicPartnerDO" parameterClass="basicPartnerDO">
+		update basic_partner
+		set gmt_modified=now(),
+		code = #code#,
+		warehouse_id = #warehouseId#,
+		simple_name = #simpleName#, 
+		contact_address = #contactAddress#,
+		contact_name = #contactName#,
+		contact_tel = #contactTel#,
+		contact_email = #contactEmail#,
+		contact_fax = #contactFax#, 
+		level = #level#,
+		remark = #remark#,
+		operator_id = #operatorId#,
+		feature = #feature#, 
+		partner_type = #partnerType#,
+		name = #name#,
+		batch_rule_id = #batchRuleId#,
+		mix_strategy_id = #mixStrategyId#,
+		operator_ip = #operatorIp#,
+		picking_strategy_id = #pickingStrategyId#
+	    where id = #id#
+	</update>
+	
+	<!--批量更新status-->
+	<update id="updateParnerStatus" >
+		update basic_partner
+		set gmt_modified=now(),status=#status#,operator_id=#operaterId#
+	    where id in ($ids$)
+	</update>
+	
+	<!--查询列表,支持分页和不分页-->
+	<select id="queryBasicPartner" resultMap="basicPartnerDOResultMap"
+		parameterClass="partnerQuery">
+		SELECT *
+		FROM basic_partner
+		<include refid="queryParam"/>
+        <include refid="doUncertainOrderBy"/>
+		<dynamic prepend="limit">
+			<isNotEqual property="isDownload" compareValue="true">
+                <![CDATA[ #begin#, #num#]]>
+			</isNotEqual>
+		</dynamic>
+	</select>
+	
+    <!--查询数量-->
+	<select id="queryBasicPartnerCount" resultClass="java.lang.Integer"
+		parameterClass="partnerQuery">
+		SELECT count(*)
+		FROM basic_partner
+		<include refid="queryParam"/>
+	</select>
+	
+	<!--根据id查询记录-->
+	<select id="queryBasicPartnerById" resultMap="basicPartnerDOResultMap" 
+		parameterClass="java.lang.Long">
+		SELECT *
+		FROM basic_partner
+		where id=#id# 
+	</select>
+	
+	<select id="queryBasicPartnerByCode" resultMap="basicPartnerDOResultMap" >
+	  SELECT *
+		FROM basic_partner WHERE code=#code#  
+		 <isNotNull property="warehouseId" prepend="AND">
+		  warehouse_id=#warehouseId#
+		 </isNotNull> 
+		 <isNull property="warehouseId" prepend="AND">
+         ISNULL(warehouse_id)
+         </isNull>
+		 AND 
+		  partner_type=#partnerType#
+	</select>
+</sqlMap>

@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="basic_user">
+    <typeAlias alias="basicUserDO" type="com.wdk.wms.basic.daoobject.BasicUserDO"/>
+    <typeAlias alias="userQueryParameterDO" type="com.wdk.wms.basic.query.parameters.UserQuery"/>
+    <typeAlias alias="privilegedUserQuery" type="com.wdk.wms.basic.query.parameters.PrivilegedUserQuery"/>
+
+    <resultMap id="basicUserDOResultMap" class="basicUserDO">
+        <result property="id" column="id"/>
+        <result property="gmtCreate" column="gmt_create"/>
+        <result property="gmtModified" column="gmt_modified"/>
+        <result property="account" column="account"/>
+        <result property="workNumber" column="work_number"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="warehouseIds" column="warehouse_ids"/>
+        <result property="password" column="password"/>
+        <result property="userName" column="user_name"/>
+        <result property="status" column="status"/>
+        <result property="sex" column="sex"/>
+        <result property="age" column="age"/>
+        <result property="mobile" column="mobile"/>
+        <result property="tel" column="tel"/>
+        <result property="address" column="address"/>
+        <result property="lastLoginTime" column="last_login_time"/>
+        <result property="feature" column="feature"/>
+        <result property="type" column="type"/>
+        <result property="groupType" column="group_type"/>
+        <result property="xiaoerAccount" column="xiaoer_account"/>
+        <result property="operatorId" column="operator_id"/>
+        <result property="operatorIp" column="operator_ip"/>
+    </resultMap>
+
+    <!--查询条件-->
+    <sql id="doUncertainQueryParams">
+        <dynamic prepend="WHERE">
+            <isNotNull property="warehouseId" prepend="AND">
+                <![CDATA[warehouse_id =#warehouseId#]]>
+            </isNotNull>
+            <isNotNull property="userName" prepend="AND">
+                <![CDATA[user_name like CONCAT('%', #userName#, '%') or  work_number LIKE CONCAT('%', #userName#, '%')
+             or account LIKE CONCAT('%', #userName#, '%')]]>
+            </isNotNull>
+            <isNotNull property="status" prepend="AND">
+                <![CDATA[status =#status#]]>
+            </isNotNull>
+        </dynamic>
+    </sql>
+    
+    <!--特权用户查询条件-->
+    <sql id="privilegedUserQueryParams">
+        <dynamic prepend="WHERE">
+            <isNotNull property="userId" prepend="AND">
+                <![CDATA[id=#userId#]]>
+            </isNotNull>
+             <isNotNull property="account" prepend="AND">
+                <![CDATA[(account like CONCAT('%', #account#, '%') or work_number LIKE CONCAT('%', #account#, '%'))]]>
+            </isNotNull>
+            <isNotNull property="userName" prepend="AND">
+                <![CDATA[user_name like CONCAT('%', #userName#, '%')]]>
+            </isNotNull>
+            <isNotNull property="status" prepend="AND">
+                <![CDATA[status =#status#]]>
+            </isNotNull>
+            <isNotNull property="userIds" prepend="AND">
+                <![CDATA[id in ($userIds$)]]>
+            </isNotNull>
+        </dynamic>
+    </sql>
+
+    <!--更新-->
+    <sql id="doUpdateCondition">
+            <isNotNull property="gmtCreate" prepend=",">
+                <![CDATA[ gmt_create = #gmtCreate#]]>
+            </isNotNull>
+            <isNotNull property="account" prepend=",">
+                <![CDATA[ account = #account#]]>
+            </isNotNull>
+            <isNotNull property="workNumber" prepend=",">
+                <![CDATA[ work_number = #workNumber#]]>
+            </isNotNull>
+            <isNotNull property="warehouseId" prepend=",">
+                <![CDATA[ warehouse_id = #warehouseId#]]>
+            </isNotNull>
+            <isNotNull property="warehouseIds" prepend=",">
+                <![CDATA[ warehouse_ids = #warehouseIds#]]>
+            </isNotNull>
+            <isNotNull property="password" prepend=",">
+                <![CDATA[ password = #password#]]>
+            </isNotNull>
+            <isNotNull property="userName" prepend=",">
+                <![CDATA[ user_name = #userName#]]>
+            </isNotNull>
+            <isNotNull property="status" prepend=",">
+                <![CDATA[ status = #status#]]>
+            </isNotNull>
+            <isNotNull property="sex" prepend=",">
+                <![CDATA[ sex = #sex#]]>
+            </isNotNull>
+            <isNotNull property="age" prepend=",">
+                <![CDATA[ age = #age#]]>
+            </isNotNull>
+            <isNotNull property="mobile" prepend=",">
+                <![CDATA[ mobile = #mobile#]]>
+            </isNotNull>
+            <isNotNull property="tel" prepend=",">
+                <![CDATA[ tel = #tel#]]>
+            </isNotNull>
+            <isNotNull property="address" prepend=",">
+                <![CDATA[ address = #address#]]>
+            </isNotNull>
+            <isNotNull property="lastLoginTime" prepend=",">
+                <![CDATA[ last_login_time = #lastLoginTime#]]>
+            </isNotNull>
+            <isNotNull property="feature" prepend=",">
+                <![CDATA[ feature = #feature#]]>
+            </isNotNull>
+            <isNotNull property="type" prepend=",">
+                <![CDATA[ type = #type#]]>
+            </isNotNull>
+            <isNotNull property="groupType" prepend=",">
+                <![CDATA[ group_type = #groupType#]]>
+            </isNotNull>
+            <isNotNull property="xiaoerAccount" prepend=",">
+                <![CDATA[ xiaoer_account = #xiaoerAccount#]]>
+            </isNotNull>
+            <isNotNull property="operatorId" prepend=",">
+                <![CDATA[operator_id = #operatorId#]]>
+            </isNotNull>
+            <isNotNull property="operatorIp" prepend=",">
+                <![CDATA[operator_ip = #operatorIp#]]>
+            </isNotNull>
+    </sql>
+
+    <!--排序条件-->
+    <sql id="doUncertainOrderBy">
+        <dynamic prepend="ORDER BY">
+            gmt_modified desc
+        </dynamic>
+    </sql>
+
+    <!--查询所有-->
+    <select id="queryBasicUser" resultMap="basicUserDOResultMap"
+            parameterClass="userQueryParameterDO">
+        SELECT * FROM basic_user
+        <include refid="doUncertainQueryParams"/>
+        <include refid="doUncertainOrderBy"/>
+        <dynamic prepend="limit">
+            <isNotNull property="begin">
+                <isNotNull property="num">
+                    #begin#, #num#
+                </isNotNull>
+            </isNotNull>
+        </dynamic>
+    </select>
+
+    <!--查询用户总记录数-->
+    <select id="queryUserCount" parameterClass="userQueryParameterDO" resultClass="java.lang.Integer">
+        SELECT count(*) FROM basic_user
+        <include refid="doUncertainQueryParams"/>
+    </select>
+
+    <!--通过id查询单个-->
+    <select id="queryBasicUserById" parameterClass="java.lang.Long" resultMap="basicUserDOResultMap">
+        select * from basic_user where id = #id#
+    </select>
+
+    <!--插入-->
+    <insert id="insertBasicUserDO" parameterClass="basicUserDO">
+        INSERT INTO basic_user( gmt_create, gmt_modified,account,work_number,warehouse_id,warehouse_ids,password,
+        user_name,status,sex
+        , age, mobile, tel, address, last_login_time, feature, type, group_type, operator_id, operator_ip,
+        xiaoer_account)
+        VALUES (NOW(), NOW(), #account#, #workNumber#,#warehouseId#,#warehouseIds#,#password#,#userName#,#status#,#sex#
+        ,#age#,#mobile#,#tel#,#address#,#lastLoginTime#,#feature#,#type#,#groupType#,#operatorId#,
+        #operatorIp#,#xiaoerAccount#)
+        <selectKey keyProperty="id" resultClass="java.lang.Long">
+            SELECT
+            LAST_INSERT_ID() AS value
+        </selectKey>
+    </insert>
+
+    <!--更新-->
+    <update id="updateBasicUserDO" parameterClass="basicUserDO">
+        UPDATE basic_user set
+        gmt_modified = now(),
+        account = #account#,
+        work_number = #workNumber#,
+        warehouse_id = #warehouseId#,
+        warehouse_ids = #warehouseIds#,
+        password = #password#,
+        user_name = #userName#,
+        sex = #sex#,
+        age = #age#,
+        mobile = #mobile#,
+        tel = #tel#,
+        address = #address#,
+        last_login_time = #lastLoginTime#,
+        feature = #feature#,
+        type = #type#,
+        group_type = #groupType#,
+        xiaoer_account = #xiaoerAccount#,
+        operator_id = #operatorId#,
+        operator_ip = #operatorIp#
+        WHERE id = #id#
+    </update>
+
+    <!--删除-->
+    <delete id="deleteBasicUserByIds" parameterClass="java.lang.String">
+        DELETE FROM basic_user
+        WHERE id in ($ids$)
+    </delete>
+
+    <!--启用或停用-->
+    <update id="updateUserStatus">
+        UPDATE basic_user SET status = #status#, gmt_modified=NOW(), operator_id=#operatorId#
+        WHERE id in ($ids$)
+    </update>
+
+    <!--校验用户名和密码-->
+    <select id="checkNameAndPassword" resultMap="basicUserDOResultMap">
+        SELECT * FROM basic_user
+        WHERE account=#account# AND password=#password#
+    </select>
+
+    <!--通过用户名查询-->
+    <select id="queryUserByAccount" parameterClass="java.lang.String" resultMap="basicUserDOResultMap">
+        SELECT * FROM basic_user
+        WHERE account=#account#
+    </select>
+
+    <!--通过用户编号查询-->
+    <select id="queryUserByWorkNumber" parameterClass="java.lang.String" resultMap="basicUserDOResultMap">
+        SELECT * FROM basic_user
+        WHERE work_number=#workNumber#
+    </select>
+
+    <!--通过用户id 获取name-->
+    <select id="queryUserNameById" parameterClass="java.lang.Long" resultClass="java.lang.String">
+        SELECT t.user_name FROM  basic_user t
+        WHERE t.id = #id#
+    </select>
+    
+    
+    <!--查询所有特权用户-->
+    <select id="queryPrivilegedUser" resultMap="basicUserDOResultMap"
+            parameterClass="privilegedUserQuery">
+        SELECT * FROM basic_user
+        <include refid="privilegedUserQueryParams"/>
+        <include refid="doUncertainOrderBy"/>
+        <dynamic prepend="limit">
+            <isNotNull property="begin">
+                <isNotNull property="num">
+                    #begin#, #num#
+                </isNotNull>
+            </isNotNull>
+        </dynamic>
+    </select>
+
+    <!--查询用户总记录数-->
+    <select id="queryPrivilegedUserCount" parameterClass="privilegedUserQuery" resultClass="java.lang.Integer">
+        SELECT count(*) FROM basic_user
+        <include refid="privilegedUserQueryParams"/>
+    </select>
+</sqlMap>

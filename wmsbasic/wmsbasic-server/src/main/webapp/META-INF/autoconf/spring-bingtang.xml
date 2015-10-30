@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+      http://www.springframework.org/schema/tx
+      http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+      http://www.springframework.org/schema/context
+      http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+      default-autowire="byName">
+      
+      <bean id="itemClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.ItemClientAPIImpl" />
+	<bean id="itemClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		  init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.ItemClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="itemClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>ItemClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+            <value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+	
+	<bean id="orderClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.OrderClientAPIImpl" />
+	<bean id="orderClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		  init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.OrderClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="orderClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>OrderClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+            <value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+	
+	<bean id="pickClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.PickClientAPIImpl" />
+	<bean id="pickClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		  init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.PickClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="pickClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>PickClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+            <value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+
+	<bean id="wcsClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.WcsClientAPIImpl" />
+	<bean id="wcsClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		  init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.WcsClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="wcsClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>WcsClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+            <value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+</beans>

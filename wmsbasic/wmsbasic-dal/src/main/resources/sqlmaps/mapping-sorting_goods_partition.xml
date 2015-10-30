@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="sorting_goods_partition">
+    <typeAlias alias="sortingGoodsPartitionDO" type="com.wdk.wms.basic.daoobject.SortingGoodsPartitionDO"/>
+    <typeAlias alias="sortingGoodsPartitionQueryParameterDO" type="com.wdk.wms.basic.query.parameters.SortingGoodsPartitionQuery"/>
+
+     <resultMap id="sortingGoodsPartitionResultMap" class="sortingGoodsPartitionDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />	 
+		<result property="code" column="code" />
+		<result property="name" column="name" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="pickSort" column="pick_sort" />
+		<result property="remark" column="remark" />
+		<result property="operatorId" column="operator_id" />
+		<result property="operatorIp" column="operator_ip" />
+		<result property="feature" column="feature" />
+		<result property="pickTool" column="pick_tool" />
+		<result property="packageGenerationMethod" column="package_generation_method" />
+		<result property="isHanging" column="is_hanging" />
+		<result property="type" column="type" />
+	  </resultMap>
+	  
+<!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			 gmt_modified desc
+		</dynamic>
+	</sql>
+	
+<select id="querySortingGoodsPartition" parameterClass="sortingGoodsPartitionQueryParameterDO" resultMap="sortingGoodsPartitionResultMap">
+	select *
+	from sorting_goods_partition  
+		<dynamic prepend="WHERE">
+			<isNotNull property="code" prepend="and">
+				code = #code#
+			</isNotNull>
+			<isNotNull property="name" prepend="and">
+				name = #name#
+			</isNotNull>
+			<isNotNull property="warehouseId"  prepend="and">
+				warehouse_id=#warehouseId#
+			</isNotNull>
+			<isNotNull property="type"  prepend="and">
+				type=#type#
+			</isNotNull>
+		</dynamic>
+		<include refid="doUncertainOrderBy" />
+		<dynamic prepend="limit">
+			<isNotEqual property="isDownload" compareValue="true">
+                <![CDATA[ #begin#, #num#]]>
+			</isNotEqual>
+		</dynamic>
+	</select>
+	
+	<select id="querySortingGoodsPartitionCount" parameterClass="sortingGoodsPartitionQueryParameterDO" resultClass="java.lang.Integer">
+	select count(1) from sorting_goods_partition
+		<dynamic prepend="WHERE">
+			<isNotNull property="code" prepend="and">
+				code = #code#
+			</isNotNull>
+			<isNotNull property="name" prepend="and">
+				name = #name#
+			</isNotNull>
+			<isNotNull property="warehouseId" prepend="and">
+				warehouse_id=#warehouseId#
+			</isNotNull>
+			<isNotNull property="type"  prepend="and">
+				type=#type#
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+	<!-- insert into 基本语句 -->
+	<insert id="insertSortingGoodsPartition" parameterClass="sortingGoodsPartitionDO" >
+	insert into sorting_goods_partition(gmt_create,gmt_modified,code,name,warehouse_id,pick_sort,remark,operator_id,operator_ip,feature,pick_tool,package_generation_method,is_hanging,type)
+	values(now(),now(),#code#,#name#,#warehouseId#,#pickSort#,#remark#,#operatorId#,#operatorIp#,#feature#,#pickTool#,#packageGenerationMethod#,#isHanging#,#type#)
+	<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+	</selectKey>
+	</insert>
+	
+	<delete id="deleteSortingGoodsPartitionById">
+	delete from sorting_goods_partition where id =#id#
+	</delete>
+	
+	<select id="querySortingGoodsPartitionById"  resultMap="sortingGoodsPartitionResultMap">
+	select * from sorting_goods_partition where id=#id#
+	</select>
+	
+ 
+	<update id="updateSortingGoodsPartition" parameterClass="sortingGoodsPartitionDO">
+	update sorting_goods_partition
+		set gmt_modified=now(),code=#code#,name=#name#,warehouse_id=#warehouseId#,pick_sort=#pickSort#,remark=#remark#,operator_id=#operatorId#,operator_ip=#operatorIp#,feature=#feature#,pick_tool=#pickTool#,package_generation_method=#packageGenerationMethod#,is_hanging=#isHanging#,type=#type#
+		where id = #id# 
+	</update>
+	
+	<select id="queryIdByCodeList" parameterClass="java.util.Map" resultClass="java.lang.Long">
+	  SELECT id FROM sorting_goods_partition WHERE code in
+	             <iterate conjunction="," property="codeList" open="(" close=")">
+					#codeList[]#
+				</iterate>
+	</select>
+	
+	<select id="queryByCodes" resultMap="sortingGoodsPartitionResultMap">
+	SELECT * FROM sorting_goods_partition WHERE code in
+	<iterate conjunction="," property="codes" open="(" close=")">
+					#codes[]#
+				</iterate>
+    AND warehouse_id=#warehouseId#
+	</select>
+	
+	<select id="querySortingGoodsPartitionByCode" resultMap="sortingGoodsPartitionResultMap" >
+	SELECT * FROM sorting_goods_partition WHERE code=#pickingAreaCode#
+	AND warehouse_id=#warehouseId#
+	</select>
+</sqlMap>

@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+
+<sqlMap namespace="basic_item" >
+
+   <typeAlias alias="ItemQuery" type="com.wdk.wms.basic.query.parameters.ItemQuery"/>
+   <typeAlias alias="itemDO" type="com.wdk.wms.basic.daoobject.BasicItemDO" />
+  <resultMap id="basicItemDOResultMap" class="itemDO" >
+    <result property="id" column="id" />
+    <result property="code" column="code" />
+    <result property="status" column="status" />
+    <result property="name" column="name" />
+    <result property="simpleName" column="simple_name" />
+    <result property="specification" column="specification" />
+    <result property="barcode" column="barcode" /> 
+    <result property="weight" column="weight" />
+    <result property="price" column="price" />
+    <result property="volume" column="volume" />
+    <result property="length" column="length" />
+    <result property="width" column="width" />
+    <result property="height" column="height" />
+    <result property="isShelflife" column="is_shelflife" />
+    <result property="remark" column="remark" />
+    <result property="itemTypeCode" column="item_type_code" />
+    <result property="operatorId" column="operator_id" />
+    <result property="gmtCreate" column="gmt_create" />
+    <result property="gmtModified" column="gmt_modified" /> 
+    <result property="warnDays" column="warn_days"/>
+    <result property="brandName" column="brand_name"/>
+    <result property="overloadRate" column="overload_rate"/>
+    <result property="purchaseUnit" column="purchase_unit"/>
+    <result property="counterPoise" column="counter_poise"/>
+    <result property="inventoryUnit" column="inventory_unit"/>
+    <result property="expirationDays" column="expiration_days"/>
+    <result property="forbidReceiveDays" column="forbid_receive_days"/>
+    <result property="forbidSalesDays" column="forbid_sales_days"/>
+    <result property="isWeigh" column="is_weigh"/>
+    <result property="isBigItem" column="is_big_item"/>
+    <result property="isProcessItem" column="is_process_item"/>
+    <result property="isTrace" column="is_trace"/>
+   	<result property="salesVolume" column="sales_volume"/>
+    <result property="packMode" column="pack_mode"/>
+    <result property="storageType" column="storage_type"/>
+    <result property="salesUnit" column="sales_unit"/>
+    <result property="isStandard" column="is_standard"/>
+    <result property="version" column="version"/>
+  </resultMap>
+
+  <sql id="doUncertainQueryParams" >
+    <dynamic prepend="WHERE" >
+      
+      <isNotNull property="code" prepend="AND" >
+        <![CDATA[  
+        a1.code =#code# 
+        ]]> 
+      </isNotNull>
+      <!-- 支持模糊查询 -->
+      <isNotNull property="name" prepend="AND" >
+        <![CDATA[  
+        a1.name like CONCAT('%',#name#,'%')
+        ]]>  
+      </isNotNull>
+    </dynamic>
+  </sql>
+  
+  <sql id="doUpdateCondition">
+       code = #code#,
+       status = #status#,
+       name = #name#,
+       simple_name = #simpleName#,
+       barcode = #barcode#, 
+       weight = #weight#,
+       volume = #volume#,
+       price = #price#,
+       length = #length#,
+       width = #width#,
+       height = #height#, 
+       is_shelflife = #isShelflife#,
+       remark = #remark#,
+       item_type_code = #itemTypeCode#, 
+       operator_id = #operatorId#,
+       gmt_create = #gmtCreate#, 
+       warn_days = #warnDays#,
+       brand_name = #brandName#,
+       overload_rate = #overloadRate#,
+       purchase_unit = #purchaseUnit#,
+       counter_poise = #counterPoise#,
+       inventory_unit = #inventoryUnit#,
+       expiration_days = #expirationDays#,
+       forbid_receive_days = #forbidReceiveDays#,
+       forbid_sales_days = #forbidSalesDays#,
+       is_weigh = #isWeigh#,
+       is_big_item = #isBigItem#,
+       is_process_item = #isProcessItem#,
+       is_trace = #isTrace#,
+       sales_volume = #salesVolume#,
+       pack_mode = #packMode#,
+       storage_type = #storageType#,
+       sales_unit = #salesUnit#,
+       is_standard = #isStandard#,
+       version=#version#+1
+  </sql>
+  
+  
+
+ <insert id="insert" parameterClass="itemDO">
+	insert into basic_item(code,status,name,simple_name,specification,barcode ,weight,volume,price,length,width,height,is_shelflife,remark,item_type_code,operator_id,gmt_create,gmt_modified,brand_name,warn_days,overload_rate,purchase_unit,counter_poise,inventory_unit,expiration_days,forbid_receive_days,forbid_sales_days,is_weigh,is_big_item,is_process_item,is_trace,sales_volume,pack_mode,storage_type,sales_unit,is_standard,version)
+	values(#code#,1,#name#,#simpleName#,#specification#,#barcode# ,#weight#,#volume#,#price#,#length#,#width#,#height#,#isShelflife#,#remark#,#itemTypeCode#,#operatorId#,now(),now(),#brandName#,#warnDays#,#overloadRate#,#purchaseUnit#,#counterPoise#,#inventoryUnit#,#expirationDays#,#forbidReceiveDays#,#forbidSalesDays#,#isWeigh#,#isBigItem#,#isProcessItem#,#isTrace#,#salesVolume#,#packMode#,#storageType#,#salesUnit#,#isStandard#,1)
+    <selectKey keyProperty="id" resultClass="java.lang.Long" >
+      SELECT LAST_INSERT_ID() AS value
+    </selectKey>
+  </insert>
+
+  <update id="update" parameterClass="itemDO" >
+    UPDATE basic_item   
+    SET code=#code#,status=#status#,name=#name#,simple_name=#simpleName#,specification=#specification#,
+    barcode=#barcode# ,weight=#weight#,volume=#volume#,price=#price#,length=#length#,
+    width=#width#,height=#height#,is_shelflife=#isShelflife#,remark=#remark#,item_type_code=#itemTypeCode#,
+    operator_id=#operatorId#,gmt_create=#gmtCreate#,gmt_modified=now(),brand_name=#brandName#,
+    warn_days=#warnDays#,overload_rate=#overloadRate#,purchase_unit=#purchaseUnit#,
+    counter_poise=#counterPoise#,inventory_unit=#inventoryUnit#,expiration_days=#expirationDays#,
+    forbid_receive_days=#forbidReceiveDays#,forbid_sales_days=#forbidSalesDays#,is_weigh=#isWeigh#,
+    is_big_item=#isBigItem#,is_process_item=#isProcessItem#,is_trace=#isTrace#,sales_volume=#salesVolume#,
+    pack_mode=#packMode#,storage_type=#storageType#,sales_unit=#salesUnit#,is_standard = #isStandard#
+    ,version=#version#+1
+     WHERE id = #id#  AND version=#version#
+  </update>
+  
+  <update id="updateStatusByIds">
+    UPDATE basic_item set status = #status#, gmt_modified=NOW(), operator_id=#userId#  WHERE id in ($ids$) 
+  </update>
+
+  <select id="queryById" parameterClass="java.lang.Long" resultMap="basicItemDOResultMap" >
+     SELECT *
+    <![CDATA[  
+     FROM basic_item a1 WHERE id = #id#
+    ]]>  
+  </select>
+  
+  <select id="queryByCode" parameterClass="java.lang.String" resultMap="basicItemDOResultMap" >
+     SELECT *
+    <![CDATA[  
+     FROM basic_item WHERE code = #code#
+    ]]>  
+  </select>
+  
+  <select id="countByDO" parameterClass="ItemQuery" resultClass="java.lang.Integer" >
+    SELECT COUNT(id) AS num FROM basic_item a1
+    <include refid="doUncertainQueryParams" />
+  </select>
+
+  <select id="queryListByDO" resultMap="basicItemDOResultMap" parameterClass="ItemQuery" >
+     SELECT * FROM basic_item a1
+    <include refid="doUncertainQueryParams" />
+     ORDER BY a1.gmt_modified DESC
+    <dynamic prepend="limit" >
+      <isEqual property="isDownload" compareValue="false"><![CDATA[ #begin#, #num#  ]]>   </isEqual>
+    </dynamic>
+  </select>
+   
+	
+	<!-- 根据ids查询记录 -->
+	<select id="queryItemByIds" resultMap="basicItemDOResultMap" parameterClass="java.lang.String">
+	   SELECT * 
+	   FROM basic_item WHERE id in($ids$)
+	</select>
+    
+    <!-- 根据id查询code -->
+    <select id="queryItemCodeById" resultClass="java.lang.String">
+     SELECT code FROM basic_item WHERE id=#id#
+    </select>
+    
+    <!-- 根据商品code查询id -->
+    <select id="queryItemIdByCode" resultClass="java.lang.Long">
+     SELECT id FROM basic_item WHERE code=#code#
+    </select>
+    
+    <select id="queryItemById" resultMap="basicItemDOResultMap" >
+    SELECT * FROM basic_item WHERE id=#id#
+    </select>
+    
+    <select id="queryItemsByCodes" resultMap="basicItemDOResultMap" >
+      SELECT * FROM basic_item  WHERE code in 
+      <iterate conjunction="," property="codes" open="(" close=")">
+					#codes[]#
+				</iterate>
+    </select>
+    
+    <select id="queryCodesByBarCodes" resultClass="java.lang.String">
+      SELECT code FROM basic_item WHERE barcode in
+      <iterate conjunction="," property="barCodes" open="(" close=")">
+					#barCodes[]#
+				</iterate>
+    </select>
+    
+    <select id="queryItemNameById" resultClass="java.lang.String">
+     SELECT name FROM basic_item WHERE id=#id#
+    </select>
+    
+    <select id="queryItemesByIds" resultMap="basicItemDOResultMap">
+     SELECT * FROM basic_item  WHERE id in 
+      <iterate conjunction="," property="ids" open="(" close=")">
+					#ids[]#
+				</iterate>
+    </select>
+</sqlMap>

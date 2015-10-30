@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+      http://www.springframework.org/schema/tx
+      http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+      http://www.springframework.org/schema/context
+      http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+	default-autowire="byName">
+	<bean id="partnerClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.PartnerClientAPIImpl" />
+	<bean id="partnerClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.PartnerClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="partnerClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>PartnerClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+			<value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+	<bean id="onShelfClientAPIImpl" class="com.wdk.wms.basic.client.api.impl.OnShelfClientAPIImpl" />
+	<bean id="onShelfClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.OnshelfClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="onShelfClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>OnShelfClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+			<value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+
+	<bean id="containerOrderClientAPIImpl"
+		class="com.wdk.wms.basic.client.api.impl.ContainerOrderClientAPIImpl" />
+	<bean id="containerOrderClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.ContainerOrderClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="containerOrderClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>containerOrderClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+			<value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+
+	<bean id="arrivalNoticeClientAPIImpl"
+		class="com.wdk.wms.basic.client.api.impl.ArrivalNoticeClientAPIImpl" />
+	<bean id="arrivalNoticeClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.ArrivalNoticeClientAPI</value>
+		</property>
+		<property name="target">
+			<ref bean="arrivalNoticeClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>ArrivalNoticeClientAPIService</value>
+		</property>
+		<property name="serviceVersion">
+			<value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+
+	<bean id="orderInventoryOccupyClientAPIImpl"
+		class="com.wdk.wms.basic.client.api.impl.OrderInventoryOccupyClientAPIImpl" />
+	<bean id="orderInventoryOccupyClientAPIProvider" class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean"
+		init-method="init">
+		<property name="serviceInterface">
+			<value>com.wdk.wms.basic.client.api.OrderInventoryOccupyClientAPI
+			</value>
+		</property>
+		<property name="target">
+			<ref bean="orderInventoryOccupyClientAPIImpl" />
+		</property>
+		<property name="serviceName">
+			<value>OrderInventoryOccupyClientAPIImplService</value>
+		</property>
+		<property name="serviceVersion">
+			<value>${basic_hsf_provide_version}</value>
+		</property>
+	</bean>
+	<bean id="inventoryProcessService" class="com.wdk.wms.inventory.service.InventoryProcessService" />
+	<bean id="virtualOnshelf" class="com.wdk.wms.inventory.service.VirtualOnshelf" />
+</beans>

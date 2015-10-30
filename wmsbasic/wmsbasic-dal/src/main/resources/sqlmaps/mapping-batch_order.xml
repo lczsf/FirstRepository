@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="batch_order">
+	<typeAlias alias="orderBatchDO" type="com.wdk.wms.basic.daoobject.BatchOrderDO" />
+	<typeAlias alias="orderBatchQuery" type="com.wdk.wms.basic.query.parameters.BatchOrderQuery" />
+	
+	<resultMap id="basicResultMap" class="orderBatchDO">
+		<result property="id" column="id" />
+		<result property="externalBatchCode" column="external_batch_code" />
+		<result property="batchName" column="batch_name" />
+		<result property="batchProperty" column="batch_property" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="ownerId" column="owner_id" />
+		<result property="performanceType" column="performance_type" />
+		<result property="batchType" column="batch_type" />
+		<result property="arrivetime" column="arrivetime" />
+		<result property="childOrderQuanity" column="child_order_quanity" />
+		<result property="remark" column="remark" />
+		<result property="waveId" column="wave_id" />
+		<result property="warehouseCode" column="warehouse_code" />
+	</resultMap>
+
+
+    <!--查询条件-->
+    <sql id="doUncertainQueryParams">
+        <dynamic prepend="WHERE">
+            <isNotNull property="batchName" prepend="AND">
+                <![CDATA[
+	        batch_name = #batchName#
+	        ]]></isNotNull>
+            <isNotNull property="batchProperty" prepend="AND">
+                <![CDATA[
+	        batch_property = #batchProperty#
+	        ]]></isNotNull>
+            <isNotNull property="externalBatchCode" prepend="AND">
+                <![CDATA[
+	        external_batch_code = #externalBatchCode#
+	        ]]></isNotNull>
+            <isNotNull property="id" prepend="AND">
+                <![CDATA[
+	        id = #id#
+	        ]]></isNotNull>
+
+            <isNotNull property="warehouseCode" prepend="AND">
+                <![CDATA[
+	        warehouse_code = #warehouseCode#
+	        ]]></isNotNull>
+            <isNotNull property="ownerId" prepend="AND">
+                <![CDATA[
+	        owner_id = #ownerId#
+	        ]]></isNotNull>
+            <isNotNull property="warehouseId" prepend="AND">
+                <![CDATA[
+	        warehouse_id = #warehouseId#
+	        ]]></isNotNull>
+        </dynamic>
+    </sql>
+
+	<!-- select 基本语句 -->
+	<select id="queryBasicOrder" resultMap="basicResultMap" parameterClass="orderBatchQuery">
+		select *
+        from batch_order
+        <include refid="doUncertainQueryParams"/>
+	</select>
+	
+	<!-- insert into 基本语句 -->
+	<insert id="insertBasicOrder" parameterClass="orderBatchDO">
+        insert into batch_order(external_batch_code,batch_name,batch_property,warehouse_id,owner_id,
+        performance_type,batch_type,arrivetime,child_order_quanity,remark,wave_id,warehouse_code)
+        values(#externalBatchCode#,#batchName#,#batchProperty#,#warehouseId#,#ownerId#,
+        #performanceType#,#batchType#,#arrivetime#,#childOrderQuanity#,#remark#,#waveId#,#warehouseCode#)
+		 <selectKey keyProperty="id" resultClass="java.lang.Long">
+            SELECT
+            LAST_INSERT_ID() AS value
+        </selectKey>
+	</insert>
+
+	<!-- update 基本语句 -->
+	<update id="updateBasicOrder" parameterClass="orderBatchDO">
+		update batch_order
+        set
+        external_batch_code=#externalBatchCode#,batch_name=#batchName#,batch_property=#batchProperty#,warehouse_id=#warehouseId#,owner_id=#ownerId#,performance_type=#performanceType#,batch_type=#batchType#,arrivetime=#arrivetime#,child_order_quanity=#childOrderQuanity#,remark=#remark#,wave_id=#waveId#
+		where id = #id# AND warehouse_code=#warehouseCode#
+	</update>
+	
+	<!--查询数量-->
+	<select id="queryArrivalNoticeCount" resultClass="java.lang.Integer" parameterClass="orderBatchQuery">
+		SELECT count(*)
+        FROM batch_order
+        <include refid="doUncertainQueryParams"/>
+	</select>
+
+    <select id="queryBatchOrderByBatchCodeAndWhId" resultMap="basicResultMap">
+		SELECT *
+        FROM batch_order t
+        WHERE
+        t.warehouse_id = #warehouseId#
+        AND t.external_batch_code = #externalBatchCode#
+        AND t.warehouse_code = #warehouseCode#
+	</select>
+
+
+    <!-- 通过波次id 查询-->
+    <select id="queryByWaveId" resultMap="basicResultMap">
+        SELECT * FROM batch_order
+        WHERE wave_id=#waveId#
+        AND warehouse_id = #warehouseId#
+        AND warehouse_code = #warehouseCode#
+    </select>
+
+</sqlMap>

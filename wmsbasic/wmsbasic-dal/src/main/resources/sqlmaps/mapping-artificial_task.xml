@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="artificial_task">
+
+	<typeAlias alias="artificialTaskDO" type="com.wdk.wms.basic.daoobject.ArtificialTaskDO" />
+	<typeAlias alias="artificialTaskQuery" type="com.wdk.wms.basic.query.parameters.ArtificialTaskQuery" />
+	<resultMap id="artificialTaskDOResultMap" class="artificialTaskDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="warehouseCode" column="warehouse_code" />
+	    <result property="orderId" column="order_id" />
+	    <result property="orderType" column="order_type" />
+	    <result property="taskType" column="task_type" />
+	    <result property="taskDescription" column="task_description" />
+	    <result property="status" column="status" />
+	    <result property="warehouseId" column="warehouse_id" />
+	    <result property="waveId" column="wave_id" />
+	</resultMap>
+	
+	
+		<!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			gmt_modified desc
+		</dynamic>
+	</sql>
+	
+    <sql id="doUncertainQueryParams">
+		<dynamic prepend="WHERE">
+		<isNotNull property="id" prepend="AND">
+        <![CDATA[  
+        id = #id#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="taskType" prepend="AND">
+        <![CDATA[  
+        task_type = #taskType#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend="AND">
+        <![CDATA[  
+        status = #status#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="warehouseId" prepend="AND">
+        <![CDATA[  
+        warehouse_id = #warehouseId#  
+        ]]>
+			</isNotNull>
+			 <isNotNull property="warehouseCode" prepend="AND">
+        <![CDATA[  
+        warehouse_code = #warehouseCode#  
+        ]]>
+			</isNotNull>
+		</dynamic>
+	</sql>
+
+	<select id="queryArtificialTask" resultMap="artificialTaskDOResultMap"
+		parameterClass="artificialTaskQuery">
+		SELECT  * FROM 
+		artificial_task
+	    <include refid="doUncertainQueryParams" />
+	    <include refid="doUncertainOrderBy"/>
+		<dynamic prepend="limit">
+			<isEqual property="isDownload" compareValue="false">
+        <![CDATA[  
+        #begin#, #num#  
+        ]]>
+			</isEqual>
+		</dynamic>
+	</select>
+	
+	
+	<insert id="insertArtificialTask" parameterClass="artificialTaskDO">
+	insert into artificial_task(gmt_create,gmt_modified,warehouse_code,order_id,order_type,task_type,task_description,status,warehouse_id,wave_id)
+	values(now(),now(),#warehouseCode#,#orderId#,#orderType#,#taskType#,#taskDescription#,#status#,#warehouseId#,#waveId#)
+	<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+
+	<select id="queryArtificialTaskCount" resultClass="java.lang.Integer"
+		parameterClass="artificialTaskQuery">
+		SELECT COUNT(*)
+	    FROM artificial_task
+	    <include refid="doUncertainQueryParams" />
+	</select>
+	
+	<select id="queryArtificialTaskById" resultMap="artificialTaskDOResultMap">
+	  select * from artificial_task where id=#id#  and warehouse_code=#warehouseCode#
+	</select>
+	
+	<update id="updateStatus">
+	  update artificial_task set status=#nowStatus# where id=#id#  and warehouse_code=#warehouseCode# and status=#preStatus#
+	</update>
+</sqlMap>

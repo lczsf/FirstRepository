@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="putaway_order">
+
+	<typeAlias alias="putawayOrderDO" type="com.wdk.wms.basic.daoobject.PutawayOrderDO" />
+	<typeAlias alias="putawayOrderQuery" type="com.wdk.wms.basic.query.parameters.PutawayOrderQuery" />
+    
+	<resultMap id="putawayOrderResultMap" class="putawayOrderDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="code" column="code" />
+		<result property="sourceType" column="source_type" />
+		<result property="sourceOrderId" column="source_order_id" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="warehouseCode" column="warehouse_code" />
+		<result property="ownerId" column="owner_id" />
+		<result property="putawayerId" column="putawayer_id" />
+		<result property="isRf" column="is_rf" />
+		<result property="status" column="status" />
+		<result property="type" column="type" />
+		<result property="putdownId" column="putdown_id" />
+		<result property="containerCode" column="container_code" />
+		<result property="sourceOrderCode" column="source_order_code" />
+		<result property="feature" column="feature" />
+		<result property="operatorId" column="operator_id" />
+		
+	</resultMap>
+
+	<!--查询条件 -->
+	<sql id="queryParam">
+		<dynamic prepend="WHERE">
+			<isNotNull property="code" prepend="AND">
+                <![CDATA[a1.code =#code#]]>
+			</isNotNull>
+			<isNotNull property="warehouseId" prepend="AND">
+                <![CDATA[a1.warehouse_id=#warehouseId#]]>
+			</isNotNull>
+			<isNotNull property="warehouseCode" prepend="AND">
+                <![CDATA[a1.warehouse_code=#warehouseCode#]]>
+			</isNotNull>
+			<isNotNull property="ownerId" prepend="AND">
+                <![CDATA[a1.owner_id =#ownerId#]]>
+			</isNotNull>
+			<isNotNull property="putawayerId" prepend="AND">
+                <![CDATA[a1.putawayer_id=#putawayerId#]]>
+			</isNotNull>
+			<isNotNull property="status" prepend="AND">
+                <![CDATA[a1.status =#status#]]>
+			</isNotNull>
+			<isNotNull property="containerCode" prepend="AND">
+                <![CDATA[a1.container_code =#containerCode#]]>
+			</isNotNull>
+			<isNotNull property="type" prepend="AND">
+                <![CDATA[a1.type =#type#]]>
+			</isNotNull>
+			<isNotNull property="gmtCreateBegin" prepend="AND">
+                <![CDATA[a1.gmt_create >=#gmtCreateBegin#]]>
+			</isNotNull>
+			<isNotNull property="gmtCreateEnd" prepend="AND">
+                <![CDATA[a1.gmt_create <=#gmtCreateEnd#]]>
+			</isNotNull>
+			<isNotNull property="sourceOrderCode" prepend="AND">
+                <![CDATA[a1.source_order_code =#sourceOrderCode#]]>
+			</isNotNull>
+			
+		</dynamic>
+	</sql>
+	
+	<!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			a1.gmt_modified desc
+		</dynamic>
+	</sql>
+
+	<insert id="insertPutawayOrder" parameterClass="putawayOrderDO">
+		insert into
+		putaway_order(gmt_create,gmt_modified,code,source_type,source_order_id,warehouse_id,owner_id,putawayer_id,is_rf,status,putdown_id,container_code,type,source_order_code,feature,warehouse_code,operator_id)
+		values(now(),now(),#code#,#sourceType#,#sourceOrderId#,#warehouseId#,#ownerId#,#putawayerId#,#isRf#,1,#putdownId#,#containerCode#,#type#,#sourceOrderCode#,#feature#,#warehouseCode#,#operatorId#)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+
+	<!--查询列表,支持分页和不分页 -->
+	<select id="queryPutawayOrder" resultMap="putawayOrderResultMap"
+		parameterClass="putawayOrderQuery">
+		SELECT a1.*
+		FROM putaway_order a1
+		<include refid="queryParam" />
+		<include refid="doUncertainOrderBy" />
+		<dynamic prepend="limit">
+			<isNotEqual property="isDownload" compareValue="true">
+                <![CDATA[ #begin#, #num#]]>
+			</isNotEqual>
+		</dynamic>
+	</select>
+   
+   <!-- 查询列表总数 -->
+
+   <select id="queryPutawayOrderCount"  resultClass="java.lang.Integer" parameterClass="putawayOrderQuery">
+		SELECT count(*)
+		FROM putaway_order a1
+		<include refid="queryParam" />
+	</select>
+   <!-- 根据仓库id，容器code查询上架单 -->
+   <select id="queryByContainerCode" resultMap="putawayOrderResultMap">
+        SELECT * FROM  putaway_order 
+        <dynamic prepend="WHERE">
+           <isNotNull property="containerCode"  prepend="AND">
+           container_code=#containerCode#
+           </isNotNull>
+           <isNotNull property="warehouseId"  prepend="AND">
+           warehouse_id=#warehouseId#
+           </isNotNull>
+           <isNotNull property="warehouseCode"  prepend="AND">
+           warehouse_code=#warehouseCode#
+           </isNotNull>
+           <isNotNull property="status"  prepend="AND">
+           status=#status#
+           </isNotNull>
+        </dynamic>
+   </select>
+   
+   <!-- 根据仓库id,容器code,操作人id修改上架单 -->
+   <update id="updateByContainerCodeAndPutawayerId">
+         UPDATE putaway_order
+          <dynamic prepend="SET">
+              <isNotNull property="putawayerId"  prepend=",">
+              putawayer_id=#putawayerId# ,  operator_id=#putawayerId# 
+              </isNotNull>
+          </dynamic>
+          <dynamic prepend="WHERE">
+              <isNotNull property="putawayOrderId"  prepend="AND">
+               id=#putawayOrderId#
+              </isNotNull>
+              <isNotNull property="putawayerId"  prepend="AND">
+              (putawayer_id=#putawayerId# or putawayer_id is null)  
+              </isNotNull>
+              <isNotNull property="warehouseId"  prepend="AND">
+           warehouse_id=#warehouseId#
+           </isNotNull>
+           <isNotNull property="warehouseCode"  prepend="AND">
+           warehouse_code=#warehouseCode#
+           </isNotNull>
+          </dynamic>
+   </update>
+   
+   <!-- 查询status=1的上架单 -->
+   <select id="queryPutawayOrderByStatusIsOne">
+      SELECT * FROM putaway_order WHERE warehouse_id=#warehouseId#   AND status=1 AND warehouse_code=#warehouseCode#
+   </select>
+   
+   <!-- 根据仓库id，装箱单id查询上架单 -->
+   <select id="queryByContainerOrderId">
+      SELECT * FROM putaway_order WHERE warehouse_id=#warehouseId# AND source_order_id=#containerOrderId# AND warehouse_code=#warehouseCode#
+   </select>
+   
+   <!-- 根据上架单id，查询上架单 -->
+   <select id="queryPutawayOrderById" resultMap="putawayOrderResultMap">
+     SELECT * FROM putaway_order WHERE warehouse_id=#warehouseId#  AND  id=#putawayOrderId#  AND warehouse_code=#warehouseCode#
+   </select>
+   
+   <!-- 根据上架单id更改状态 -->
+   <update id="updatePutawayOrderStatusById" >
+    UPDATE putaway_order set status=#status# WHERE  warehouse_id=#warehouseId#  AND   id=#putawayOrderId# AND warehouse_code=#warehouseCode#
+   </update>
+   
+   <select id="queryByOrderIdAndContainerCode"  resultMap="putawayOrderResultMap">
+    SELECT * FROM putaway_order WHERE source_order_id=#orderId# AND container_code=#containerCode# AND warehouse_id=#warehouseId# 
+    AND status=#status# AND warehouse_code=#warehouseCode#
+   </select>
+   
+   <select id="queryByItemIdAndStatus" resultMap="putawayOrderResultMap">
+   select * from putaway_order where item_id=#itemId# and status=#status#  AND warehouse_id=#warehouseId#  AND warehouse_code=#warehouseCode
+   </select>
+  
+</sqlMap>

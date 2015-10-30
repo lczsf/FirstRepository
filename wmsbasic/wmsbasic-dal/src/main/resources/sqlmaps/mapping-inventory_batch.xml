@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="inventory_batch">
+
+	<typeAlias alias="inventoryBatchDO"
+		type="com.wdk.wms.basic.daoobject.InventoryBatchDO" />
+
+	<resultMap id="inventoryBatchDOResultMap" class="inventoryBatchDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="produceDate" column="produce_date" />
+		<result property="arriveDate" column="arrive_date" />
+	</resultMap>
+
+	<insert id="insertInventoryBatch" parameterClass="inventoryBatchDO">
+		insert into
+		inventory_batch(gmt_create,gmt_modified,produce_date,arrive_date)
+		values(now(),now(),#produceDate#,#arriveDate#)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+
+    <select id="queryInventoryBatchDO"
+		resultMap="inventoryBatchDOResultMap">
+        select * from inventory_batch where
+        arrive_date=DATE(#arriveDate#)
+        <isNotNull property="produceDate">
+            AND produce_date=DATE(#produceDate#)
+        </isNotNull>
+        <isNull property="produceDate">
+            AND produce_date is NULL
+        </isNull>
+	</select>
+
+    <!--通过id查询-->
+    <select id="queryById" parameterClass="java.lang.Long" resultMap="inventoryBatchDOResultMap">
+        SELECT * FROM inventory_batch WHERE id = #id#
+    </select>
+</sqlMap>

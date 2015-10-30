@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+  <bean id="vtabroot" class="com.taobao.tddl.interact.rule.VirtualTableRoot" init-method="init">
+    <property name="dbType" value="MYSQL" />
+    <property name="tableRules">
+      <map>
+        <entry key="inventory_info" value-ref="inventory_info" />
+      </map>
+    </property>
+  </bean>
+  <bean id="inventory_info" class="com.taobao.tddl.interact.rule.TableRule">
+    <property name="dbNamePattern" value="WDK_WMS_GROUP" />
+    <property name="tbNamePattern" value="inventory_info_{0000}" />
+    <property name="tbRuleArray" value="((#item_id,1,10#).longValue().abs() % 10)" />
+    <property name="allowFullTableScan" value="false" />
+  </bean>
+</beans>

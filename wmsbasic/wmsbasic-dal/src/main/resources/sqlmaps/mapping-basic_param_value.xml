@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="basic_param_value">
+    <typeAlias alias="basicParamValueDO" type="com.wdk.wms.basic.daoobject.BasicParamValueDO"/>
+    <typeAlias alias="paramValueQuery" type="com.wdk.wms.basic.query.parameters.ParamValueQuery"/>
+
+    <resultMap id="basicParamValueDOResultMap" class="basicParamValueDO">
+        <result property="id" column="id"/>
+        <result property="gmtCreated" column="gmt_created"/>
+        <result property="gmtModified" column="gmt_modified"/>
+        <result property="paramName" column="param_name"/>
+        <result property="paramValue" column="param_value"/>
+        <result property="paramTypeId" column="param_type_id"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="status" column="status"/>
+        <result property="operatorId" column="operator_id"/>
+        <result property="operatorIp" column="operator_ip"/>
+    </resultMap>
+
+
+    <!--更新-->
+    <sql id="doUpdateCondition">
+        <!--<isNotNull property="gmtCreate" prepend=",">
+            <![CDATA[ gmt_create = #gmtCreate#]]>
+        </isNotNull>-->
+        <isNotNull property="paramName" prepend=",">
+            <![CDATA[param_name = #paramName#]]>
+        </isNotNull>
+        <isNotNull property="paramValue" prepend=",">
+            <![CDATA[param_value = #paramValue#]]>
+        </isNotNull>
+        <!-- <isNotNull property="status" prepend=",">
+             <![CDATA[status = #status#]]>
+         </isNotNull>-->
+        <isNotNull property="paramTypeId" prepend=",">
+            <![CDATA[param_type_id = #paramTypeId#]]>
+        </isNotNull>
+        <isNotNull property="warehouseId" prepend=",">
+            <![CDATA[warehouse_id = #warehouseId#]]>
+        </isNotNull>
+        <isNotNull property="operatorId" prepend=",">
+            <![CDATA[operator_id = #operatorId#]]>
+        </isNotNull>
+        <isNotNull property="operatorIp" prepend=",">
+            <![CDATA[operator_ip = #operatorIp#]]>
+        </isNotNull>
+    </sql>
+
+    <!--排序条件-->
+    <sql id="doUncertainOrderBy">
+        <dynamic prepend="ORDER BY">
+            gmt_modified desc
+        </dynamic>
+    </sql>
+
+    <!--查询-->
+    <select id="queryParamValue" parameterClass="paramValueQuery" resultMap="basicParamValueDOResultMap">
+        SELECT * FROM basic_param_value WHERE status=1
+        <include refid="doUncertainOrderBy"/>
+    </select>
+
+    <!--查询单条-->
+    <select id="queryParamValueById" parameterClass="java.lang.Long" resultMap="basicParamValueDOResultMap">
+        SELECT * FROM basic_param_value WHERE id= #id#
+    </select>
+
+    <!--通过父类id和仓库id查询-->
+    <select id="queryParamValueByTypeIdAndWarehouseId" resultMap="basicParamValueDOResultMap">
+        SELECT * FROM basic_param_value
+        WHERE param_type_id = #paramTypeId# AND warehouse_id = #warehouseId#
+        <include refid="doUncertainOrderBy"/>
+    </select>
+
+    <!--查询公共参数-->
+    <select id="queryByTypeIdAndWarehouseIdIsNull" parameterClass="java.lang.Long"
+            resultMap="basicParamValueDOResultMap">
+        SELECT * FROM basic_param_value
+        WHERE param_type_id = #paramTypeId# AND warehouse_id is null
+        <include refid="doUncertainOrderBy"/>
+    </select>
+
+    <select id="queryByTypeIdWarehouseIdOrIsNull" resultMap="basicParamValueDOResultMap">
+        SELECT * FROM basic_param_value
+        WHERE param_type_id = #paramTypeId# AND warehouse_id = #warehouseId# or warehouse_id is null
+        <include refid="doUncertainOrderBy"/>
+    </select>
+
+    <!--插入-->
+    <insert id="insertParamValue" parameterClass="basicParamValueDO">
+        INSERT INTO basic_param_value(gmt_created, gmt_modified, param_name, param_value,
+        status, param_type_id, warehouse_id, operator_id, operator_ip)
+        VALUES (NOW(), NOW(), #paramName#, #paramValue#, 1, #paramTypeId#, #warehouseId#, #operatorId#, #operatorIp#)
+        <selectKey keyProperty="id" resultClass="java.lang.Long">
+            SELECT
+            LAST_INSERT_ID() AS value
+        </selectKey>
+    </insert>
+
+    <!--更新-->
+    <update id="updateParamValue" parameterClass="basicParamValueDO">
+        UPDATE basic_param_value SET
+        gmt_modified = NOW(),
+        param_name = #paramName#,
+        param_value = #paramValue#,
+        param_type_id = #paramTypeId#,
+        warehouse_id = #warehouseId#,
+        operator_id = #operatorId#,
+        operator_ip = #operatorIp#
+        WHERE id=#id#
+    </update>
+
+    <!--删除-->
+    <delete id="deleteParamValue" parameterClass="java.lang.String">
+        DELETE FROM basic_param_value
+        WHERE id in ($ids$)
+    </delete>
+
+    <!--通过参数类型id删除-->
+    <delete id="deleteParamValueByParamTypeIds" parameterClass="java.lang.String">
+        DELETE FROM basic_param_value
+        WHERE param_type_id in ($paramTypeIds$)
+    </delete>
+
+    <delete id="deleteByTypeIdsAndWarehouseId">
+        DELETE FROM basic_param_value
+        WHERE param_type_id in ($paramTypeIds$) AND warehouse_id = #warehouseId#
+    </delete>
+
+    <!--通过参数编码 查询具体参数值-->
+    <select id="queryValueByParamCode" resultMap="basicParamValueDOResultMap">
+        select b1.* from basic_param_type b
+        LEFT JOIN basic_param_value b1 on b.id = b1.param_type_id AND (b1.warehouse_id = #warehouseId# or warehouse_id
+        is null)
+        where b.type_code = #typeCode#
+    </select>
+</sqlMap>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+
+<sqlMap namespace="basic_item_barcode" >
+  <typeAlias alias="itemBarcodeDO" type="com.wdk.wms.basic.daoobject.BasicItemBarcodeDO" />
+
+  <resultMap id="basicItemBarcodeDOResultMap" class="itemBarcodeDO" >
+    <result property="id" column="id" />
+    <result property="itemId" column="item_id" />
+    <result property="barcode" column="barcode" />
+    <result property="status" column="status" />
+    <result property="isDefault" column="is_default" />
+    <result property="remark" column="remark" />
+    <result property="operatorId" column="operator_id" />
+    <result property="gmtCreate" column="gmt_create" />
+    <result property="gmtModified" column="gmt_modified" />
+  </resultMap>
+  
+  <sql id="basicItemBarcode_columns" >
+    a1.id, a1.item_id, a1.barcode, a1.status, a1.is_default, a1.remark, a1.operator_id, a1.gmt_create, a1.gmt_modified
+  </sql>
+
+  <sql id="doUncertainQueryParams" >
+    <dynamic prepend="WHERE" >
+      <isNotNull property="id" prepend="AND" >
+        <![CDATA[  
+        id = #id#  
+        ]]>  
+      </isNotNull>
+      <isNotNull property="itemId" prepend="AND" >
+        <![CDATA[  
+        item_id = #itemId#  
+        ]]>  
+      </isNotNull>
+      <isNotNull property="barcode" prepend="AND" >
+        <![CDATA[  
+        barcode = #barcode#  
+        ]]>  
+      </isNotNull>
+      <isNotNull property="status" prepend="AND" >
+        <![CDATA[  
+        status = #status#  
+        ]]>  
+      </isNotNull>
+      <isNotNull property="isDefault" prepend="AND" >
+        <![CDATA[  
+        is_default = #isDefault#  
+        ]]>  
+      </isNotNull>
+      <isNotNull property="remark" prepend="AND" >
+        <![CDATA[  
+        remark = #remark#  
+        ]]>  
+      </isNotNull>
+    </dynamic>
+  </sql>
+
+  <sql id="doUpdateCondition" >
+    <isNotNull property="id" prepend="," >
+      <![CDATA[  
+      id = #id#  
+      ]]>  
+    </isNotNull>
+    <isNotNull property="itemId" prepend="," >
+      <![CDATA[  
+      item_id = #itemId#  
+      ]]>  
+    </isNotNull>
+    <isNotNull property="barcode" prepend="," >
+      <![CDATA[  
+      barcode = #barcode#
+      ]]>  
+    </isNotNull>
+    <isNotNull property="status" prepend="," >
+      <![CDATA[  
+      status = #status#  
+      ]]>  
+    </isNotNull>
+    <isNotNull property="isDefault" prepend="," >
+      <![CDATA[  
+      is_default = #isDefault#  
+      ]]>  
+    </isNotNull>
+    <isNotNull property="remark" prepend="," >
+      <![CDATA[  
+      remark = #remark#  
+      ]]>  
+    </isNotNull>
+    <isNotNull property="operatorId" prepend="," >
+	  <![CDATA[  
+	  operator_id = #operatorId#  
+	  ]]>  
+     </isNotNull>
+     <isNotNull property="gmtCreate" prepend="," >
+       <![CDATA[  
+       gmt_create = #gmtCreate#  
+       ]]>  
+     </isNotNull>
+  </sql>
+
+  <insert id="insert" parameterClass="itemBarcodeDO" >
+    INSERT INTO basic_item_barcode( id, item_id, barcode, status, is_default, remark, operator_id, gmt_create, gmt_modified)
+     VALUES ( #id#, #itemId#, #barcode#, #status#
+     <dynamic prepend=",">
+     	<isNotNull property="isDefault">
+     		#isDefault#
+     	</isNotNull>
+     	<isNull property="isDefault">
+     		0
+     	</isNull>
+     </dynamic>
+     , #remark#, #operatorId#, now(), now())
+    <selectKey keyProperty="id" resultClass="java.lang.Long" >
+      SELECT LAST_INSERT_ID() AS value
+    </selectKey>
+  </insert>
+
+   
+  <delete id="deleteById" parameterClass="java.lang.Long">
+    <![CDATA[  
+     DELETE FROM basic_item_barcode WHERE id = #id#
+    ]]>  
+  </delete>
+  
+  <select id="queryListByItemID" parameterClass="java.lang.Long" resultMap="basicItemBarcodeDOResultMap" >
+     SELECT *
+    <![CDATA[  
+     FROM basic_item_barcode WHERE item_id = #itemId#
+    ]]>  
+  </select>
+	
+  <select id="queryItemIdByBarcode"  resultClass="java.lang.Long">
+  SELECT item_id FROM basic_item_barcode WHERE barcode=#barcode#
+  </select>	
+</sqlMap>

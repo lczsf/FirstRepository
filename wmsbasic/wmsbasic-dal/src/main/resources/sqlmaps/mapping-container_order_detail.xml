@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="container_order_detail">
+
+	<typeAlias alias="containerOrderDetailDO" type="com.wdk.wms.basic.daoobject.ContainerOrderDetailDO" />
+
+	<resultMap id="containerOrderDetailDOResultMap" class="containerOrderDetailDO">
+	    <result property="id" column="id" />
+	    <result property="containerOrderId" column="container_order_id" />
+        <result property="warehouseCode" column="warehouse_code"/>
+	    <result property="itemId" column="item_id" />
+	    <result property="itemCode" column="item_code" />
+	    <result property="price" column="price" />
+	    <result property="itemBatchId" column="item_batch_id" />
+	    <result property="remark" column="remark" />
+	    <result property="gmtCreate" column="gmt_create" />
+	    <result property="gmtModified" column="gmt_modified" />
+	    <result property="feature" column="feature" />
+	    <result property="unit" column="unit" />
+	    <result property="spec" column="spec" />
+	    <result property="actualPackageQuantity" column="actual_package_quantity" />  
+	</resultMap>
+
+
+    <!--更新-->
+    <sql id="doUpdateCondition">
+        <isNotNull property="itemId" prepend=",">
+            <![CDATA[ item_id = #itemId#]]>
+        </isNotNull>
+        <isNotNull property="itemCode" prepend=",">
+            <![CDATA[ item_code = #itemCode#]]>
+        </isNotNull>
+        <isNotNull property="price" prepend=",">
+            <![CDATA[ price = #price#]]>
+        </isNotNull>
+        <isNotNull property="itemBatchId" prepend=",">
+            <![CDATA[ item_batch_id = #itemBatchId#]]>
+        </isNotNull>
+        <isNotNull property="remark" prepend=",">
+            <![CDATA[ remark = #remark#]]>
+        </isNotNull>
+        <isNotNull property="feature" prepend=",">
+            <![CDATA[ feature = #feature#]]>
+        </isNotNull>
+        <isNotNull property="unit" prepend=",">
+            <![CDATA[ unit = #unit#]]>
+        </isNotNull>
+        <isNotNull property="spec" prepend=",">
+            <![CDATA[ spec = #spec#]]>
+        </isNotNull>
+        <isNotNull property="actualPackageQuantity" prepend=",">
+            <![CDATA[ actual_package_quantity = #actualPackageQuantity#]]>
+        </isNotNull>
+    </sql>
+
+    <insert id="insertContainerOrderDetail" parameterClass="containerOrderDetailDO">
+        insert into
+        container_order_detail(container_order_id,item_id,item_code,price,item_batch_id,remark,gmt_create,
+        gmt_modified,feature,unit,spec,actual_package_quantity,warehouse_code)
+        values(#containerOrderId#,#itemId#,#itemCode#,#price#,#itemBatchId#,#remark#,now(),
+        now(),#feature#,#unit#,#spec#,#actualPackageQuantity#,#warehouseCode#)
+	    <selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+
+    <select id="queryContainerOrderDetail" resultMap="containerOrderDetailDOResultMap">
+		select * from container_order_detail where container_order_id=#containerOrderId# AND warehouse_code=#warehouseCode#
+	</select>
+
+    <!--通过装箱单id和商品编码查询-->
+    <select id="queryByOrderIdAndItemCode" resultMap="containerOrderDetailDOResultMap">
+        SELECT * FROM container_order_detail t
+        WHERE t.container_order_id=#containerOrderId# AND t.item_code=#itemCode# AND t.warehouse_code=#warehouseCode#
+    </select>
+
+    <select id="queryById" resultMap="containerOrderDetailDOResultMap">
+        SELECT * FROM container_order_detail WHERE id=#id# AND warehouse_code=#warehouseCode# AND container_order_id=#containerOrderId#
+    </select>
+
+    <!--统计批次-->
+    <select id="queryCountBatch" resultMap="containerOrderDetailDOResultMap">
+        SELECT * FROM container_order_detail t
+        WHERE t.container_order_id=#containerOrderId# AND t.item_code=#itemCode# AND t.warehouse_code=#warehouseCode#
+    </select>
+
+    <select id="queryByOrderIdAndItemId" resultMap="containerOrderDetailDOResultMap">
+        SELECT * FROM container_order_detail t
+        WHERE t.container_order_id=#containerOrderId# AND t.item_id=#itemId# AND t.warehouse_code=#warehouseCode#
+    </select>
+
+    <!-- 删除装箱单明细 -->
+    <delete id="deleteById">
+        DELETE FROM container_order_detail
+        WHERE id = #id# AND warehouse_code=#warehouseCode# AND container_order_id=#containerOrderId#
+    </delete>
+
+    <!--更新-->
+    <update id="updateOrderDetail" parameterClass="containerOrderDetailDO">
+        UPDATE container_order_detail SET
+        gmt_modified = NOW()
+        <include refid="doUpdateCondition"/>
+        WHERE id = #id# AND warehouse_code=#warehouseCode# AND container_order_id=#containerOrderId#
+    </update>
+</sqlMap>

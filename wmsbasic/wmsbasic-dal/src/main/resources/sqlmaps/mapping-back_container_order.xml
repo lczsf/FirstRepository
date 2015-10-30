@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="back_container_order">
+
+	<typeAlias alias="backContainerOrderDO" type="com.wdk.wms.basic.daoobject.BackContainerOrderDO" />
+	<typeAlias alias="backOrderContainerQuery" type="com.wdk.wms.basic.query.parameters.BackContainerOrderQuery" />
+	<resultMap id="backContainerOrderDOResultMap" class="backContainerOrderDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="containerCode" column="container_code" />
+	    <result property="parcelId" column="parcel_id" />
+	    <result property="status" column="status" />
+	    <result property="waveId" column="wave_id" />
+	    <result property="ownerId" column="owner_id" />
+	    <result property="warehouseId" column="warehouse_id" />
+	    <result property="warehouseCode" column="warehouse_code" />
+	    <result property="itemNumber" column="item_number" />
+	    <result property="itemBatchId" column="item_batch_id" />
+	    <result property="itemId" column="item_id" />
+	</resultMap>
+	
+	
+		<!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			gmt_modified desc
+		</dynamic>
+	</sql>
+	
+    <sql id="doUncertainQueryParams">
+		<dynamic prepend="WHERE">
+			<isNotNull property="waveId" prepend="AND">
+        <![CDATA[  
+        wave_id = #waveId#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="warehouseId" prepend="AND">
+        <![CDATA[  
+        warehouse_id = #warehouseId#  
+        ]]>
+			</isNotNull>
+			 <isNotNull property="warehouseCode" prepend="AND">
+        <![CDATA[  
+        warehouse_code = #warehouseCode#  
+        ]]>
+			</isNotNull>
+		</dynamic>
+	</sql>
+
+	<select id="queryBackContainerOrder" resultMap="backContainerOrderDOResultMap"
+		parameterClass="backOrderContainerQuery">
+		SELECT  * FROM 
+		back_container_order
+	    <include refid="doUncertainQueryParams" />
+	    <include refid="doUncertainOrderBy"/>
+		<dynamic prepend="limit">
+			<isEqual property="isDownload" compareValue="false">
+        <![CDATA[  
+        #begin#, #num#  
+        ]]>
+			</isEqual>
+		</dynamic>
+	</select>
+	
+	
+	<insert id="insertBackContainerOrder" parameterClass="backContainerOrderDO">
+	insert into back_container_order(gmt_create,gmt_modified,container_code,parcel_id,status,wave_id,owner_id,warehouse_id,warehouse_code,item_number,item_batch_id,item_id)
+	values(now(),now(),#containerCode#,#parcelId#,#status#,#waveId#,#ownerId#,#warehouseId#,#warehouseCode#,#itemNumber#,#itemBatchId#,#itemId#)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+
+	<select id="queryBackContainerOrderCount" resultClass="java.lang.Integer"
+		parameterClass="backOrderContainerQuery">
+		SELECT COUNT(*)
+	    FROM back_container_order
+	    <include refid="doUncertainQueryParams" />
+	</select>
+	 
+	<select id="queryByWaveId"  resultMap="backContainerOrderDOResultMap">
+	  SELECT *
+	  FROM back_container_order
+	  WHERE wave_id=#waveId# AND warehouse_id=#warehouseId# 
+      AND warehouse_code=#warehouseCode# 
+	</select>
+	
+	<update id="updateStatus" >
+	  update back_container_order set status=#status# where 
+	  id=#id# AND wave_id=#waveId# AND warehouse_id=#warehouseId# 
+      AND warehouse_code=#warehouseCode# 
+	</update>
+	
+	<insert id="insertBackContainerOrderList" >
+		insert into back_container_order(gmt_create,gmt_modified,container_code,parcel_id,status,wave_id,owner_id,warehouse_id,warehouse_code,item_number,item_batch_id,item_id)
+	values
+	<iterate conjunction=","  property="backContainerOrderDOs">
+	(now(),now(),#backContainerOrderDOs[].containerCode#,#backContainerOrderDOs[].parcelId#,
+	#backContainerOrderDOs[].status#,#backContainerOrderDOs[].waveId#,#backContainerOrderDOs[].ownerId#,
+	#backContainerOrderDOs[].warehouseId#,#backContainerOrderDOs[].warehouseCode#,#backContainerOrderDOs[].itemNumber#,
+	#backContainerOrderDOs[].itemBatchId#,#backContainerOrderDOs[].itemId#)
+	</iterate>	
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>	
+	</insert>
+	
+	<select id="queryBackContainerOrderByWaveId" resultMap="backContainerOrderDOResultMap">
+	select * from back_container_order where wave_id=#waveId# AND warehouse_id=#warehouseId# 
+      AND warehouse_code=#warehouseCode# 
+	</select>
+</sqlMap>

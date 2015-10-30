@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="inventory_log">
+
+	<typeAlias alias="inventoryLogDO" type="com.wdk.wms.basic.daoobject.InventoryLogDO" />
+
+	<resultMap id="inventoryLogDOResultMap" class="inventoryLogDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="inventoryId" column="inventory_id" />
+		<result property="warehouseCode" column="warehouse_code" />
+		<result property="itemId" column="item_id" />
+		<result property="realInvent" column="real_invent" />
+		<result property="availableInvent" column="available_invent" />
+		<result property="inventoryOccupy" column="inventory_occupy" />
+		<result property="changeAccount" column="change_account" />
+		<result property="realInventUpdated" column="real_invent_updated" />
+		<result property="availableInventUpdated" column="available_invent_updated" />
+		<result property="docType" column="doc_type" />
+		<result property="docId" column="doc_id" />
+		<result property="sourceDocCode" column="source_doc_code" />	
+	</resultMap>
+	
+	<insert id="insertInventoryLog" parameterClass="inventoryLogDO">
+	
+	insert into inventory_log(gmt_create,gmt_modified,inventory_id,warehouse_code,item_id,real_invent,available_invent,inventory_occupy,change_account,real_invent_updated,available_invent_updated,doc_type,doc_id,source_doc_code)
+        values(NOW(),NOW(),#inventoryId#,#warehouseCode#,#itemId#,#realInvent#,#availableInvent#,#inventoryOccupy#,#changeAccount#,#realInventUpdated#,#availableInventUpdated#,#docType#,#docId#,#sourceDocCode#)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+
+</sqlMap>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="basic_user_warehouse_area">
+
+	<typeAlias alias="basicUserWarehouseAreaDO" type="com.wdk.wms.basic.daoobject.BasicUserWarehouseAreaDO" />
+	<typeAlias alias="userWarehouseAreaQuery" type="com.wdk.wms.basic.query.parameters.UserWarehouseAreaQuery" />
+	<resultMap id="basicUserWarehouseAreaDOResultMap" class="basicUserWarehouseAreaDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="userId" column="user_id" />
+		<result property="warehouseAreaId" column="warehouse_area_id" />
+		<result property="status" column="status" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="workNumber" column="work_number" />
+		<result property="userName" column="user_name" />
+		<result property="code" column="code" />
+	</resultMap>
+	
+    <sql id="doUncertainQueryParams">
+		<dynamic prepend="WHERE">
+			<isNotNull property="userId" prepend="AND">
+        <![CDATA[  
+        a1.user_id = #userId#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="warehouseId" prepend="AND">
+        <![CDATA[  
+        a1.warehouse_id = #warehouseId#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="warehouseAreaIds" prepend="AND">
+        <![CDATA[  
+        a1.warehouse_area_id in( $warehouseAreaIds$ )  
+        ]]>
+			</isNotNull>
+			<isNotEmpty prepend="AND">
+			a1.user_id=a2.id and a1.warehouse_area_id=a3.id
+			</isNotEmpty>	
+			<isNotNull property="workNumber" prepend="AND">
+			a2.work_number= #workNumber#
+			</isNotNull>
+		</dynamic>
+	</sql>
+
+    <!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			a1.gmt_modified desc
+		</dynamic>
+	</sql>
+	
+	<select id="queryUserWarehouseArea" resultMap="basicUserWarehouseAreaDOResultMap"
+		parameterClass="userWarehouseAreaQuery">
+		SELECT 
+		a1.*,a2.work_number,a2.user_name,a3.code
+	    FROM basic_user_warehouse_area a1
+        , basic_user a2  , basic_warehouse_area a3
+        <include refid="doUncertainQueryParams" />
+        <include refid="doUncertainOrderBy" />
+		<dynamic prepend="limit">
+			<isEqual property="isDownload" compareValue="false">
+        <![CDATA[  
+        #begin#, #num#  
+        ]]>
+			</isEqual>
+		</dynamic>
+	</select>
+	
+	<insert id="insertUserWarehouseArea" parameterClass="basicUserWarehouseAreaDO">
+		INSERT INTO basic_user_warehouse_area( gmt_create, gmt_modified, 
+		user_id,warehouse_area_id,warehouse_id,status)
+		VALUES (NOW(), NOW(), 
+		#userId#,#warehouseAreaId#,#warehouseId#,1)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+	
+	<update id="updateUserWarehouseArea" parameterClass="basicUserWarehouseAreaDO">
+	    UPDATE basic_user_warehouse_area
+	    SET  gmt_modified = now() , warehouse_area_id = #warehouseAreaId#  
+	    WHERE id = #id#
+	    <!--  
+	    <dynamic prepend="SET">
+	      <isNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNull>
+	       <isNotNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+			</isNotNull>
+			<isNotNull property="warehouseAreaId" prepend=",">
+        <![CDATA[  
+        warehouse_area_id = #warehouseAreaId#  
+        ]]>
+			</isNotNull>
+			WHERE id = #id#
+	    </dynamic>
+	    -->
+	</update>
+	
+	<select id="queryUserWarehouseAreaCount" resultClass="java.lang.Integer"
+		parameterClass="userWarehouseAreaQuery">
+		SELECT COUNT(*)
+	    FROM basic_user_warehouse_area a1
+        , basic_user a2  , basic_warehouse_area a3
+	    <include refid="doUncertainQueryParams" />
+	</select>
+	
+	<select id="queryUserWarehouseAreaById" parameterClass="java.lang.Long" resultMap="basicUserWarehouseAreaDOResultMap">
+	    SELECT a1.*,a2.work_number,a2.user_name,a3.code
+	    FROM basic_user_warehouse_area a1
+        , basic_user a2  , basic_warehouse_area a3
+        WHERE a1.id = #id#
+        and a1.user_id=a2.id and a1.warehouse_area_id=a3.id
+	</select>
+</sqlMap>

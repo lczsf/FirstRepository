@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+
+<sqlMap namespace="basic_item_store_rule" >
+
+  <typeAlias alias="itemStoreRuleDO" type="com.wdk.wms.basic.daoobject.BasicItemStoreRuleDO" />
+  <typeAlias alias="ItemStoreRuleQuery" type="com.wdk.wms.basic.query.parameters.ItemStoreRuleQuery"/>
+  
+
+  <resultMap id="basicItemStoreRuleDOResultMap" class="itemStoreRuleDO" >
+    <result property="id" column="id" />
+    <result property="warehouseId" column="warehouse_id" />
+    <result property="itemTypeId" column="item_type_id" />
+    <result property="itemId" column="item_id" />
+    <result property="cabinetId" column="cabinet_id" />
+    <result property="status" column="status" />
+    <result property="remark" column="remark" />
+    <result property="operatorId" column="operator_id" />
+    <result property="gmtCreate" column="gmt_create" />
+    <result property="gmtModified" column="gmt_modified" />
+    <result property="ownerId" column="owner_id"/>
+    <result property="itemCode" column="item_code" />
+    <result property="storeType" column="store_type" />
+  </resultMap>
+  
+  <sql id="doUncertainQueryParams" >
+    <dynamic prepend="WHERE" >
+      <isNotNull property="warehouseId" prepend="AND" >
+        <![CDATA[  
+        a1.warehouse_id = #warehouseId#  
+        ]]>  
+      </isNotNull>
+      <isNotNull property="itemCode" prepend="AND" >
+        <![CDATA[
+        a1.item_code = #itemCode#
+        ]]>
+      </isNotNull>
+      <isNotNull property="storeType" prepend="AND" >
+        <![CDATA[
+        a1.store_type = #storeType#
+        ]]>
+      </isNotNull>
+    </dynamic>
+  </sql>
+  
+  <sql id="doUpdateCondition">
+  	    warehouse_id = #warehouseId#,
+        item_type_id = #itemTypeId#,
+        item_id = #itemId#,
+        item_code = #itemCode#,
+        cabinet_id = #cabinetId#,
+        status = #status#,
+        remark = #remark#,
+        operator_id = #operatorId#,
+        gmt_create = #gmtCreate#,
+        owner_id = #ownerId#,
+        store_type = #storeType#
+  </sql>
+
+  <insert id="insert" parameterClass="itemStoreRuleDO" >
+    INSERT INTO basic_item_store_rule( id, warehouse_id, item_type_id, item_id, 
+      cabinet_id, status, remark, operator_id, gmt_create, gmt_modified, 
+      owner_id,item_code,store_type)
+
+     VALUES ( #id#, #warehouseId#, #itemTypeId#, #itemId#, 
+      #cabinetId#
+      , 1, #remark#, #operatorId#, now(), now(),
+      #ownerId#,#itemCode#,#storeType#)
+    <selectKey keyProperty="id" resultClass="java.lang.Long" >
+      SELECT LAST_INSERT_ID() AS value
+    </selectKey>
+  </insert>
+
+  <update id="update" parameterClass="itemStoreRuleDO" >
+    UPDATE basic_item_store_rule 
+    <dynamic prepend="SET" >
+      <include refid="doUpdateCondition"/>
+      ,gmt_modified = now()
+    </dynamic>
+     WHERE id = #id#  
+  </update>
+  
+  <update id="updateStatusByIds">
+    UPDATE basic_item_store_rule set status = #status#, gmt_modified=NOW(), operator_id=#userId# WHERE id in ($ids$)
+  </update>
+  
+  <delete id="deleteById" parameterClass="java.lang.Long" >
+    <![CDATA[  
+     DELETE FROM basic_item_store_rule WHERE id = #id#
+    ]]>  
+  </delete>
+  
+  <delete id="deleteByIds" parameterClass="java.lang.String" >
+    <![CDATA[  
+     DELETE FROM basic_item_store_rule WHERE id in ($ids$)
+    ]]>  
+  </delete>
+
+  <select id="queryById" parameterClass="java.lang.Long" resultMap="basicItemStoreRuleDOResultMap" >
+     SELECT *
+    <![CDATA[  
+     FROM basic_item_store_rule 
+     WHERE id = #id# 
+    ]]>  
+  </select>
+  
+  <select id="queryByItemCode" parameterClass="java.lang.String" resultMap="basicItemStoreRuleDOResultMap" >
+     SELECT *
+    <![CDATA[  
+     FROM basic_item_store_rule 
+     WHERE item_code = #itemCode# 
+    ]]>  
+  </select>
+  
+  <select id="countByDO" parameterClass="ItemStoreRuleQuery" resultClass="java.lang.Integer" >
+    SELECT COUNT(a1.id) AS num FROM basic_item_store_rule a1
+    <include refid="doUncertainQueryParams" />
+  </select>
+  
+  <select id="queryListByDO" resultMap="basicItemStoreRuleDOResultMap" parameterClass="ItemStoreRuleQuery" >
+     SELECT * FROM basic_item_store_rule a1
+    <include refid="doUncertainQueryParams" />
+     ORDER BY a1.gmt_modified DESC
+    <dynamic prepend="limit" >
+      <isEqual property="isDownload" compareValue="false"><![CDATA[ #begin#, #num#  ]]>   </isEqual>
+    </dynamic>
+  </select>
+  	
+  <!-- 根据仓库id，商品code,status查询 商品存放规则-->	
+  <select id="queryByItemCodeAndStatus" resultMap="basicItemStoreRuleDOResultMap" >
+  SELECT * FROM basic_item_store_rule WHERE warehouse_id=#warehouseId# AND item_code=#itemCode# AND status=#status# 
+  </select>
+</sqlMap>

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="inventory_info">
+
+	<typeAlias alias="inventoryInfoDO"
+		type="com.wdk.wms.basic.daoobject.InventoryInfoDO" />
+	<typeAlias alias="inventoryInfoAndBatchDO"
+		type="com.wdk.wms.basic.daoobject.InventoryInfoAndBatchDO" />
+    <typeAlias alias="inventoryInfoQuery" type="com.wdk.wms.inventory.parameters.InventoryInfoQuery"/>
+
+	<resultMap id="inventoryInfoDOResultMap" class="inventoryInfoDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="itemId" column="item_id" />
+		<result property="ownerId" column="owner_id" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="warehouseCode" column="warehouse_code" />
+		<result property="cabinetId" column="cabinet_id" />
+		<result property="itemBatchId" column="item_batch_id" />
+		<result property="realInvent" column="real_invent" />
+		<result property="availableInvent" column="available_invent" />
+		<result property="transOccupy" column="trans_occupy" />
+		<result property="orderOccupy" column="order_occupy" />
+		<result property="returnOccupy" column="return_occupy" />
+		<result property="shiftOccupy" column="shift_occupy" />
+		<result property="loseOccupy" column="lose_occupy" />
+		<result property="frozenOccupy" column="frozen_occupy" />
+		<result property="processOccupy" column="process_occupy" />
+		<result property="warehouseAreaId" column="warehouse_area_id" />
+	</resultMap>
+
+	<resultMap id="inventoryInfoAndBatchDOResultMap" class="inventoryInfoAndBatchDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="itemId" column="item_id" />
+		<result property="ownerId" column="owner_id" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="warehouseCode" column="warehouse_code" />
+		<result property="cabinetId" column="cabinet_id" />
+		<result property="itemBatchId" column="item_batch_id" />
+		<result property="realInvent" column="real_invent" />
+		<result property="availableInvent" column="available_invent" />
+		<result property="transOccupy" column="trans_occupy" />
+		<result property="orderOccupy" column="order_occupy" />
+		<result property="returnOccupy" column="return_occupy" />
+		<result property="shiftOccupy" column="shift_occupy" />
+		<result property="loseOccupy" column="lose_occupy" />
+		<result property="frozenOccupy" column="frozen_occupy" />
+		<result property="processOccupy" column="process_occupy" />
+		<result property="warehouseAreaId" column="warehouse_area_id" />
+        <result property="produceDate" column="produce_date"/>
+        <result property="arriveDate" column="arrive_date"/>
+	</resultMap>
+
+	<sql id="doQueryParams">
+        <isNotNull property="id" prepend="AND">
+            <![CDATA[id = #id#]]>
+        </isNotNull>
+		<isNotNull property="itemId" prepend="AND">
+                 <![CDATA[item_id = #itemId#]]>
+		</isNotNull>
+		<isNotNull property="ownerId" prepend="AND">
+                 <![CDATA[owner_id = #ownerId#]]>
+		</isNotNull>
+		<isNotNull property="warehouseId" prepend="AND">
+                 <![CDATA[warehouse_id = #warehouseId#]]>
+		</isNotNull>
+		<isNotNull property="warehouseCode" prepend="AND">
+                 <![CDATA[warehouse_code = #warehouseCode#]]>
+		</isNotNull>
+		<isNotNull property="cabinetId" prepend="AND">
+                <![CDATA[cabinet_id = #cabinetId#]]>
+		</isNotNull>
+		<isNotNull property="itemBatchId" prepend="AND">
+                <![CDATA[item_batch_id = #itemBatchId#]]>
+		</isNotNull>
+	</sql>
+
+	<sql id="doUpdateParams">
+		<isNotNull property="realInvent" prepend=",">
+           <![CDATA[real_invent = real_invent+#realInvent#]]>
+		</isNotNull>
+		<isNotNull property="availableInvent" prepend=",">
+       <![CDATA[available_invent =available_invent+#availableInvent#]]>
+		</isNotNull>
+		<isNotNull property="transOccupy" prepend=",">
+           <![CDATA[trans_occupy = trans_occupy+#transOccupy#]]>
+		</isNotNull>
+		<isNotNull property="orderOccupy" prepend=",">
+           <![CDATA[order_occupy =order_occupy+#orderOccupy#]]>
+		</isNotNull>
+		<isNotNull property="returnOccupy" prepend=",">
+           <![CDATA[return_occupy =return_occupy + #returnOccupy#]]>
+		</isNotNull>
+		<isNotNull property="shiftOccupy" prepend=",">
+           <![CDATA[shift_occupy =shift_occupy+ #shiftOccupy#]]>
+		</isNotNull>
+		<isNotNull property="loseOccupy" prepend=",">
+           <![CDATA[lose_occupy =lose_occupy+ #loseOccupy#]]>
+		</isNotNull>
+		<isNotNull property="frozenOccupy" prepend=",">
+           <![CDATA[frozenOccupy = frozenOccupy+#frozenOccupy#]]>
+		</isNotNull>
+		<isNotNull property="processOccupy" prepend=",">
+           <![CDATA[process_occupy = process_occupy+#processOccupy#]]>
+		</isNotNull>
+	</sql>
+
+    <sql id="whereParams">
+        <isNotNull property="realInvent" prepend="AND">
+             real_invent+#realInvent# >= 0
+        </isNotNull>
+        <isNotNull property="availableInvent" prepend="AND">
+             available_invent+#availableInvent# >= 0
+        </isNotNull>
+        <isNotNull property="transOccupy" prepend="AND">
+             trans_occupy+#transOccupy# >= 0
+        </isNotNull>
+        <isNotNull property="orderOccupy" prepend="AND">
+             order_occupy+#orderOccupy# >= 0
+        </isNotNull>
+        <isNotNull property="returnOccupy" prepend="AND">
+             return_occupy + #returnOccupy# >= 0
+        </isNotNull>
+        <isNotNull property="shiftOccupy" prepend="AND">
+             shift_occupy+ #shiftOccupy# >=0
+        </isNotNull>
+        <isNotNull property="loseOccupy" prepend="AND">
+             lose_occupy+ #loseOccupy# >= 0
+        </isNotNull>
+        <isNotNull property="frozenOccupy" prepend="AND">
+             frozenOccupy+#frozenOccupy# >= 0
+        </isNotNull>
+        <isNotNull property="processOccupy" prepend="AND">
+             process_occupy+#processOccupy# >= 0
+        </isNotNull>
+    </sql>
+
+    <insert id="insertInventoryInfo" parameterClass="inventoryInfoDO">
+		insert into
+		inventory_info(id,gmt_create,gmt_modified,item_id,owner_id,warehouse_id,warehouse_code,cabinet_id,item_batch_id,real_invent,available_invent,trans_occupy,order_occupy,return_occupy,shift_occupy,lose_occupy,frozen_occupy,process_occupy,warehouse_area_id)
+        values(#id#, now(),
+        now(),#itemId#,#ownerId#,#warehouseId#,#warehouseCode#,#cabinetId#,#itemBatchId#,#realInvent#,#availableInvent#,#transOccupy#,#orderOccupy#,#returnOccupy#,#shiftOccupy#,#loseOccupy#,#frozenOccupy#,#processOccupy#,#warehouseAreaId#)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+
+	<update id="updateInventoryInfo" parameterClass="inventoryInfoDO">
+		update inventory_info
+		<dynamic prepend="SET">
+			<include refid="doUpdateParams" />
+			,gmt_modified = now()
+		</dynamic>
+        where id= #id# and warehouse_id=#warehouseId# and warehouse_code=#warehouseCode#
+        <include refid="whereParams"/>
+	</update>
+
+	<update id="updateInventoryInfoStatus" >
+		update inventory_info
+		set status=#status#
+		where  status=1-#status# 
+		<include refid="doQueryParams" />
+	</update>
+
+	<select id="queryInventory" resultMap="inventoryInfoAndBatchDOResultMap">
+		select * from
+		inventory_info,inventory_batch
+		where item_batch_id = inventory_batch.id
+		<include refid="doQueryParams" />
+	</select>
+
+    <select id="querySingleInventory" parameterClass="inventoryInfoQuery" resultMap="inventoryInfoDOResultMap">
+		select * from
+		inventory_info
+        where 1=1
+		<include refid="doQueryParams" />
+	</select>
+
+
+    <select id="queryListInventory" parameterClass="inventoryInfoQuery" resultMap="inventoryInfoDOResultMap">
+        select * from
+        inventory_info
+        where 1=1
+        <include refid="doQueryParams"/>
+    </select>
+
+    <!--通过库位类型查询-->
+    <select id="queryInventoryByCabinetType" parameterClass="inventoryInfoQuery"
+            resultMap="inventoryInfoAndBatchDOResultMap">
+        SELECT * FROM
+        inventory_info i, inventory_batch b
+        WHERE 1=1
+        AND i.item_batch_id = b.id
+        AND i.item_id = #itemId#
+        AND i.owner_id = #ownerId#
+        AND i.warehouse_id = #warehouseId#
+        AND i.warehouse_code = #warehouseCode#
+        AND i.cabinet_id in
+        <iterate property="cabinetTypeIds" open="(" close=")" conjunction=",">#cabinetTypeIds[]#</iterate>
+        <!-- (
+         SELECT DISTINCT id  FROM basic_cabinet c
+         WHERE 1=1
+         AND c.type in
+         <iterate property="cabinetType" open="(" close=")" conjunction=",">#cabinetType[]#</iterate>
+         AND c.is_active = #isActive#
+         )-->
+    </select>
+
+    <!--通过库位类型更新-->
+    <update id="updateInventoryInfoStatusByCabinetType" parameterClass="inventoryInfoQuery">
+        update inventory_info
+        set status=#status#
+        where status=1-#status#
+        AND item_id = #itemId#
+        AND owner_id = #ownerId#
+        AND warehouse_id = #warehouseId#
+        AND warehouse_code = #warehouseCode#
+        AND cabinet_id in
+        <iterate property="cabinetTypeIds" open="(" close=")" conjunction=",">#cabinetTypeIds[]#</iterate>
+        ORDER BY id
+    </update>
+
+</sqlMap>

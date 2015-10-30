@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <group name="wmsbasic系统的配置">
+
+        <property name="basic.hsf.provide.version"
+                  defaultValue="1.0.0.daily"
+                  description="basic提供的hsf版本"/>
+    </group>
+	
+	<script>
+		<generate template="log4j.xml" destfile="WEB-INF/log4j.xml" charset="UTF-8" />
+		<generate template="spring-wdkwmsbasic-datasource.xml" destfile="WEB-INF/spring-wdkwmsbasic-datasource.xml" charset="UTF-8"/>
+        <generate template="spring-wdkwmsbasic-service.xml" destfile="WEB-INF/spring-wdkwmsbasic-service.xml" charset="UTF-8"/>
+        <generate template="spring-bingtang.xml" destfile="WEB-INF/spring-bingtang.xml" charset="UTF-8"/>
+        <generate template="spring-dishi.xml" destfile="WEB-INF/spring-dishi.xml" charset="UTF-8"/>
+        <generate template="spring-lichao.xml" destfile="WEB-INF/spring-lichao.xml" charset="UTF-8"/>
+        <generate template="spring-liuyong.xml" destfile="WEB-INF/spring-liuyong.xml" charset="UTF-8"/>
+        <generate template="spring-zengxi.xml" destfile="WEB-INF/spring-zengxi.xml" charset="UTF-8"/>
+        <generate template="spring-burton.xml" destfile="WEB-INF/spring-burton.xml" charset="UTF-8"/>
+	</script>
+</config>
+

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="picking_container_detail">
+
+
+    <typeAlias alias="pickingContainerDetailDO" type="com.wdk.wms.basic.daoobject.PickingContainerDetailDO"/>
+
+    <resultMap id="pickingContainerDetailDOResultMap" class="pickingContainerDetailDO">
+        <result property="id" column="id"/>
+        <result property="gmtCreate" column="gmt_create"/>
+        <result property="gmtModified" column="gmt_modified"/>
+        <result property="pickingContainerId" column="picking_container_id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="waveId" column="wave_id"/>
+        <result property="pickingOrderDetailId" column="picking_order_detail_id"/>
+        <result property="mainSortNumber" column="main_sort_number"/>
+        <result property="pickingSortNumber" column="picking_sort_number"/>
+    </resultMap>
+
+    <insert id="insertPickingContainerDetail" parameterClass="pickingContainerDetailDO">
+        insert into picking_container_detail(gmt_create,gmt_modified,picking_container_id,item_id,
+        warehouse_code,wave_id,picking_order_detail_id,
+        main_sort_number,picking_sort_number)
+        values(now(),now(),#pickingContainerId#,#itemId#,#warehouseCode#,#waveId#,#pickingOrderDetailId#,
+        ,#mainSortNumber#,#pickingSortNumber#)
+        <selectKey keyProperty="id" resultClass="java.lang.Long">
+            SELECT
+            LAST_INSERT_ID() AS value
+        </selectKey>
+    </insert>
+
+
+    <!--通过id 累加商品数量-->
+    <update id="updateItemQuantity">
+        UPDATE picking_container_detail
+        SET
+        gmt_modified=now(),
+        item_quantity = main_sort_number + #mainSortNumber#
+        item_quantity = picking_sort_number + #pickingSortNumber#
+        WHERE
+        id = #id# AND warehouse_code = #warehouseCode# AND picking_container_id = #pickingContainerId#
+        AND wave_id = #waveId#
+    </update>
+
+
+    <select id="queryByPickingContainerId" resultMap="pickingContainerDetailDOResultMap">
+        SELECT * FROM picking_container_detail
+        WHERE id = #id# AND warehouse_code = #warehouseCode# AND picking_container_id = #pickingContainerId#
+        AND wave_id = #waveId#
+    </select>
+
+    <!-- 通过拣货装箱单id 和 商品id获取-->
+    <select id="queryByPickingContainerIdAndItemId" resultMap="pickingContainerDetailDOResultMap">
+        SELECT * FROM picking_container_detail
+        WHERE 1=1
+        AND warehouse_code = #warehouseCode#
+        AND wave_id = #waveId#
+        AND picking_order_detail_id = #pickingOrderDetailId#
+        <isNotNull property="itemId">
+            AND item_id = #itemId#
+        </isNotNull>
+        <isNotNull property="pickingContainerId">
+            AND picking_container_id = #pickingContainerId#
+        </isNotNull>
+    </select>
+
+    <!-- 查询拣货装箱单下所有拣货装箱单明细-->
+    <select id="queryListByPickingContainerId" resultMap="pickingContainerDetailDOResultMap">
+        SELECT * FROM picking_container_detail
+        WHERE warehouse_code = #warehouseCode# AND picking_container_id = #pickingContainerId#
+        AND wave_id = #waveId#
+    </select>
+
+    <!--通过拣货装箱单ids 查询-->
+    <select id="queryByPickingContainerIds" resultMap="pickingContainerDetailDOResultMap">
+        SELECT * FROM picking_container_detail
+        WHERE 1=1
+        AND wave_id = #waveId#
+        AND warehouse_code = #warehouseCode#
+        AND picking_container_id IN
+        <iterate property="pickingContainerIds" conjunction="," open="(" close=")">#pickingContainerIds[]#</iterate>
+    </select>
+</sqlMap>

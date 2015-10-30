@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="diff_order">
+
+	<typeAlias alias="diffOrderDO" type="com.wdk.wms.basic.daoobject.DiffOrderDO" />
+	<typeAlias alias="diffOrderQuery" type="com.wdk.wms.basic.query.parameters.DiffOrderQuery" />
+	<resultMap id="diffOrderDOResultMapEx" class="diffOrderDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="code" column="code" />
+		<result property="sourceType" column="source_type" />
+		<result property="sourceOrderId" column="source_order_id" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="ownerId" column="owner_id" />
+	    <result property="creatorId" column="creator_id" />
+	    <result property="status" column="status" />
+		<result property="sourceOrderCode" column="source_order_code" />
+		<result property="containerCode" column="container_code"/>
+		<result property="dealId" column="deal_id" />
+		
+		<result property="creatorName" column="creator_name"/>
+	</resultMap>
+	
+	<resultMap id="diffOrderDOResultMap" class="diffOrderDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="code" column="code" />
+		<result property="sourceType" column="source_type" />
+		<result property="sourceOrderId" column="source_order_id" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="ownerId" column="owner_id" />
+	    <result property="creatorId" column="creator_id" />
+	    <result property="status" column="status" />
+		<result property="sourceOrderCode" column="source_order_code" />
+		<result property="containerCode" column="container_code"/>
+		<result property="dealId" column="deal_id" />
+	</resultMap>
+	
+    <sql id="doUncertainQueryParams">
+		<dynamic prepend="WHERE">
+		   <isNotEmpty prepend="AND">
+		     a5.id=a1.creator_id
+		   </isNotEmpty>
+			<isNotNull property="code" prepend="AND">
+        <![CDATA[  
+        a1.code = #code#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="warehouseId" prepend="AND">
+        <![CDATA[  
+        a1.warehouse_id = #warehouseId#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="warehouseCode" prepend="AND">
+        <![CDATA[  
+        a1.warehouse_code = #warehouseCode#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="sourceType" prepend="AND">
+        <![CDATA[  
+        a1.source_type = #sourceType#  	
+        ]]>
+			</isNotNull>
+			<isNotNull property="sourceOrderCode" prepend="AND">
+        <![CDATA[  
+        a1.source_order_code = #sourceOrderCode#  	
+        ]]>
+			</isNotNull>
+			<isNotNull property="ownerId" prepend="AND">
+        <![CDATA[  
+        a1.owner_id = #ownerId#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend="AND">
+        <![CDATA[  
+        a1.status = #status#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="gmtCreateBegin" prepend="AND">
+		<![CDATA[ 
+		a1.gmtCreate >=#gmtCreateBegin#
+		]]>
+			</isNotNull>
+			<isNotNull property="gmtCreateEnd" prepend="AND">
+		<![CDATA[ 
+		a1.gmtCreate <=#gmtCreateEnd#
+		]]>
+			</isNotNull>
+		</dynamic>
+	</sql>
+	
+    <!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			a1.gmt_modified desc
+		</dynamic>
+	</sql>
+	
+	<select id="queryDiffOrder" resultMap="diffOrderDOResultMapEx"
+		parameterClass="diffOrderQuery">
+		SELECT 
+		a1.*,a5.user_name creator_name 
+	    FROM diff_order a1, basic_user a5
+	    <include refid="doUncertainQueryParams" />
+	    <include refid="doUncertainOrderBy" />
+		<dynamic prepend="limit">
+			<isEqual property="isDownload" compareValue="false">
+        <![CDATA[  
+        #begin#, #num#  
+        ]]>
+			</isEqual>
+		</dynamic>
+	</select>
+	
+	<insert id="insertDiffOrder" parameterClass="diffOrderDO">
+	  insert into diff_order
+	  (gmt_create,gmt_modified,code,source_type,source_order_id,warehouse_id,owner_id,creator_id,status,
+	  source_order_code,container_code,deal_id,warehouse_code)
+	   values(now(),now(),#code#,#sourceType#,#sourceOrderId#,#warehouseId#,#ownerId#,#creatorId#,1,
+	   #sourceOrderCode#,#containerCode#,#dealId#,#warehouseCode#)
+	   <selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+	
+	<select id="queryDiffOrderCount"  parameterClass="diffOrderQuery" resultClass="java.lang.Integer">
+		SELECT 
+		count(*)
+	    FROM diff_order a1,basic_user a5
+	    <include refid="doUncertainQueryParams" />
+	</select>
+
+    <select id="queryDiffOrderById"  resultMap="diffOrderDOResultMap">
+        SELECT * FROM diff_order WHERE id=#diffOrderId# AND warehouse_id=#warehouseId# 
+        AND warehouse_code=#warehouseCode#
+    </select>
+    
+    <update id="updateStatus">
+        UPDATE diff_order SET  status=#status# WHERE  id=#diffOrderId# AND warehouse_id=#warehouseId# 
+        AND warehouse_code=#warehouseCode#
+    </update>
+</sqlMap>

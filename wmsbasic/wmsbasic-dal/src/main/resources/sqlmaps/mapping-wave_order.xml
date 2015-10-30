@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="wave_order">
+	<typeAlias alias="waveOrderDO" type="com.wdk.wms.basic.daoobject.WaveOrderDO" />
+	<typeAlias alias="waveOrderQuery" type="com.wdk.wms.basic.query.parameters.WaveOrderQuery" />
+	
+	<resultMap id="waveOrderMap" class="waveOrderDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="waveCode" column="wave_code" />
+		<result property="waveStatus" column="wave_status" />
+		<result property="outOperationMode" column="out_operation_mode" />
+		<result property="childOrderQuanity" column="child_order_quanity" />
+		<result property="ownerId" column="owner_id" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="warehouseCode" column="warehouse_code" />
+        <result property="waveDescriptionType" column="wave_description_type"/>
+        <result property="notifyStatus" column="notify_status"/>
+	</resultMap>
+
+
+    <!--查询条件-->
+    <sql id="doUncertainQueryParams">
+        <dynamic prepend="WHERE">
+            <isNotNull property="waveCode" prepend="AND">
+                <![CDATA[
+	        wave_code = #waveCode#
+	        ]]></isNotNull>
+            <isNotNull property="waveStatus" prepend="AND">
+                <![CDATA[
+	        wave_status = #waveStatus#
+	        ]]></isNotNull>
+            <isNotNull property="outOperationMode" prepend="AND">
+                <![CDATA[
+	        out_operation_mode = #outOperationMode#
+	        ]]></isNotNull>
+            <isNotNull property="id" prepend="AND">
+                <![CDATA[
+	        id = #id#
+	        ]]></isNotNull>
+
+            <isNotNull property="warehouseCode" prepend="AND">
+                <![CDATA[
+	        warehouse_code = #warehouseCode#
+	        ]]></isNotNull>
+            <isNotNull property="ownerId" prepend="AND">
+                <![CDATA[
+	        owner_id = #ownerId#
+	        ]]></isNotNull>
+            <isNotNull property="warehouseId" prepend="AND">
+                <![CDATA[
+	        warehouse_id = #warehouseId#
+	        ]]></isNotNull>
+
+        </dynamic>
+    </sql>
+
+	<!-- select 基本语句 -->
+	<select id="queryWaveOrder" resultMap="waveOrderMap" parameterClass="waveOrderQuery">
+		select *
+        from wave_order
+        <include refid="doUncertainQueryParams"/>
+	</select>
+
+	<!-- insert into 基本语句 -->
+	<insert id="insertWaveOrder" parameterClass="waveOrderDO">
+        insert into
+        wave_order(gmt_create,gmt_modified,wave_code,wave_status,out_operation_mode,child_order_quanity,owner_id,
+        warehouse_id,warehouse_code,wave_description_type,notify_status)
+        values(now(),now(),#waveCode#,#waveStatus#,#outOperationMode#,#childOrderQuanity#,#ownerId#,
+        #warehouseId#,#warehouseCode#,#waveDescriptionType#,0)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+	
+
+	
+	<!-- update 基本语句 -->
+	<update id="updateWaveOrder" parameterClass="waveOrderDO">
+	update wave_order
+        set gmt_modified=now(),wave_code=#waveCode#,wave_status=#waveStatus#,
+        out_operation_mode=#outOperationMode#,child_order_quanity=#childOrderQuanity#,
+        owner_id=#ownerId#,warehouse_id=#warehouseId#,wave_description_type=#waveDescriptionType#,notify_status=#notifyStatus#
+		where id = #id# and warehouse_code=#warehouseCode#
+		  
+	</update>
+	
+
+	
+	<!--查询数量-->
+	<select id="queryCountWaveOrder" resultClass="java.lang.Integer">
+		SELECT count(*)
+		FROM wave_order
+		WHERE
+	        warehouse_code = #warehouseCode#
+	     AND  owner_id = #ownerId#
+	     AND  warehouse_id = #warehouseId#
+	</select>
+	
+	<!-- delete 基本语句 -->
+	<delete id="deleteWaveOrder" parameterClass="java.lang.Long">
+	delete from wave_order 
+		where id = #id#  and warehouse_code = #warehouseCode# and warehouse_id = #warehouseId#
+		
+	</delete>
+
+    <select id="queryWaveOrderById" resultMap="waveOrderMap">
+		SELECT *
+		FROM wave_order
+        WHERE id = #waveId#
+        AND warehouse_id = #warehouseId#
+        AND warehouse_code = #warehouseCode#
+    </select>
+
+    <!--通过id 更新状态-->
+    <update id="updateStatusById">
+        update wave_order
+        SET wave_status=#waveStatus#
+        WHERE id = #waveId#
+        AND warehouse_id = #warehouseId#
+        AND warehouse_code = #warehouseCode#
+    </update>
+
+    <!--通过id 更新状态-->
+    <update id="updateStatusAndStruction">
+        update wave_order
+        SET wave_status=#waveStatus#,wave_description_type=#waveDescriptionType#
+        WHERE id = #waveId#
+        AND warehouse_id = #warehouseId#
+        AND warehouse_code = #warehouseCode#
+    </update>
+
+    <!-- 更新消息状态-->
+    <update id="updateNotifyStatus">
+         update wave_order
+        SET notify_status=#notifyStatus#
+        WHERE id = #waveId#
+        AND warehouse_id = #warehouseId#
+        AND warehouse_code = #warehouseCode#
+        AND notify_status = 0
+    </update>
+</sqlMap>

@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="basic_warehouse">
+
+	<typeAlias alias="basicWarehouseDO" type="com.wdk.wms.basic.daoobject.BasicWarehouseDO" />
+	<typeAlias alias="warehouseQuery" type="com.wdk.wms.basic.query.parameters.WarehouseQuery" />
+	<resultMap id="basicWarehouseDOResultMap" class="basicWarehouseDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="code" column="code" />
+		<result property="name" column="name" />
+		<result property="status" column="status" />
+		<result property="type" column="type" />
+		<result property="simpleCode" column="simple_code" />
+		<result property="address" column="address" />
+		<result property="major" column="major" />
+		<result property="tel" column="tel" />
+		<result property="fax" column="fax" />
+		<result property="email" column="email" />
+		<result property="remark" column="remark" />
+		<result property="operatorId" column="operator_id" />
+		<result property="operatorIp" column="operator_ip" />
+		<result property="feature" column="feature" />
+		<result property="batchRuleId" column="batch_rule_id" />
+		<result property="putawayStrategyId" column="putaway_strategy_id" />
+		<result property="mixStrategyId" column="mix_strategy_id" />
+		<result property="pickingStrategyId" column="picking_strategy_id" />
+		<result property="receivingMode" column="receiving_mode" />
+		<result property="warehouseCode" column="warehouse_code" />
+		<result property="wcsIp" column="wcs_ip" />
+		<result property="wcsPort" column="wcs_port" />
+	</resultMap>
+	
+    <sql id="doUncertainQueryParams">
+		<dynamic prepend="WHERE">
+			<isNotNull property="code" prepend="AND">
+        <![CDATA[  
+        a1.code = #code#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="name" prepend="AND">
+        <![CDATA[  
+        a1.name = #name# 
+        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend="AND">
+        <![CDATA[  
+        a1.status = #status#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="simpleCode" prepend="AND">
+	        <![CDATA[  
+	        a1.simple_code = #simpleCode#  
+	        ]]>
+			</isNotNull>
+		</dynamic>
+	</sql>
+	
+	<!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			a1.gmt_modified desc
+		</dynamic>
+	</sql>
+	
+	
+	<sql id="doQueryParams">
+	<dynamic prepend="WHERE">
+			<isNotNull property="code" prepend="AND">
+        <![CDATA[  
+        a1.code = #code#  
+        ]]>
+            </isNotNull>
+    </dynamic>	
+	</sql>
+	
+
+	<select id="queryWarehouse" resultMap="basicWarehouseDOResultMap"
+		parameterClass="warehouseQuery">
+		SELECT 
+		*
+	    FROM basic_warehouse a1
+	    <include refid="doUncertainQueryParams" />
+	    <include refid="doUncertainOrderBy" />
+		<dynamic prepend="limit">
+			<isEqual property="isDownload" compareValue="false">
+        <![CDATA[  
+        #begin#, #num#  
+        ]]>
+			</isEqual>
+		</dynamic>
+	</select>
+	
+	<insert id="insertWarehouse" parameterClass="basicWarehouseDO">
+		INSERT INTO basic_warehouse( gmt_create, gmt_modified, code,
+		name, type,  major, address, tel, remark,simple_code,operator_id,operator_ip, status,
+		fax, email, batch_rule_id,putaway_strategy_id,mix_strategy_id,picking_strategy_id,receiving_mode,warehouse_code,wcs_ip,wcs_port)
+		VALUES (NOW(), NOW(), #code#,
+		#name#,#type#, #major#, #address#, #tel#, #remark#, #simpleCode#,#operatorId#,#operatorIp#,1,
+		#fax#, #email#,#batchRuleId#,#putawayStrategyId#,#mixStrategyId#,#pickingStrategyId#,#receivingMode#,#warehouseCode#,#wcsIp#,#wcsPort#)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+	
+	<update id="updateWarehouse" parameterClass="basicWarehouseDO">
+	    UPDATE basic_warehouse
+	    SET  gmt_modified = now(),code = #code#  ,name = #name#,type = #type# ,
+	    address = #address#,tel = #tel# ,fax = #fax# ,email = #email# ,remark = #remark#  ,major = #major#  ,
+	    operator_id = #operatorId# , feature = #feature# ,simple_code = #simpleCode#, batch_rule_id = #batchRuleId# ,
+	     mix_strategy_id = #mixStrategyId# ,putaway_strategy_id = #putawayStrategyId#, operator_ip = #operatorIp# ,   
+	     picking_strategy_id = #pickingStrategyId#  ,receiving_mode=#receivingMode#,warehouse_code=#warehouseCode#,
+	     wcs_ip=#wcsIp#,wcs_port=#wcsPort#
+	     WHERE id = #id#
+	     <!--  
+	    <dynamic prepend="SET">
+	      <isNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNull>
+	       <isNotNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+			</isNotNull>
+			<isNotNull property="code" prepend=",">
+        <![CDATA[  
+        code = #code#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="name" prepend=",">
+        <![CDATA[  
+        name = #name#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend=",">
+        <![CDATA[  
+        status = #status#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="type" prepend=",">
+        <![CDATA[  
+        type = #type#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="address" prepend=",">
+        <![CDATA[  
+        address = #address#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="tel" prepend=",">
+        <![CDATA[  
+        tel = #tel#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="fax" prepend=",">
+        <![CDATA[  
+        fax = #fax#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="email" prepend=",">
+        <![CDATA[  
+        email = #email#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="remark" prepend=",">
+        <![CDATA[  
+        remark = #remark#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="major" prepend=",">
+        <![CDATA[  
+        major = #major#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="operatorId" prepend=",">
+        <![CDATA[  
+        operator_id = #operatorId#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="feature" prepend=",">
+        <![CDATA[  
+        feature = #feature#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="simpleCode" prepend=",">
+	        <![CDATA[  
+	        simple_code = #simpleCode#  
+	        ]]>
+			</isNotNull>
+			<isNotNull property="batchRuleId" prepend=",">
+            <![CDATA[  
+            batch_rule_id = #batchRuleId#  
+            ]]>
+			</isNotNull>
+			<isNotNull property="mixStrategyId" prepend=",">
+            <![CDATA[  
+            mix_strategy_id = #mixStrategyId#  
+            ]]>
+			</isNotNull>
+			<isNotNull property="putawayStrategyId" prepend=",">
+            <![CDATA[  
+            putaway_strategy_id = #putawayStrategyId#  
+            ]]>
+			</isNotNull>
+			<isNotNull property="operatorIp" prepend=",">
+        <![CDATA[  
+        operator_ip = #operatorIp#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="pickingStrategyId" prepend=",">
+            <![CDATA[  
+            picking_strategy_id = #pickingStrategyId#  
+            ]]>
+			</isNotNull>
+			WHERE id = #id#
+	    </dynamic>
+	    -->
+	</update>
+	
+	<select id="queryWarehouseCount" resultClass="java.lang.Integer"
+		parameterClass="warehouseQuery">
+		SELECT COUNT(*)
+	    FROM basic_warehouse a1
+	    <include refid="doUncertainQueryParams" />
+	</select>
+	
+		<update id="updateWarehouseStatus" >
+	    UPDATE basic_warehouse
+	    <dynamic prepend="SET">	     
+	    <isNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNull>
+	       <isNotNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+			</isNotNull>
+			<isNotNull property="operatorId" prepend=",">
+	        <![CDATA[  
+	        operator_id = #operatorId#
+	        ]]>
+			</isNotNull>
+			<isNotNull property="operatorIp" prepend=",">
+	        <![CDATA[  
+	        operator_ip = #operatorIp#
+	        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend=",">
+        <![CDATA[  
+        status = #status#  
+        ]]>
+			</isNotNull>
+			WHERE id IN
+		  ($idList$)
+	    </dynamic>
+	</update>
+	
+	<select id="queryWarehouseById" parameterClass="java.lang.Long" resultMap="basicWarehouseDOResultMap">
+	    SELECT * FROM basic_warehouse WHERE id = #id#
+	</select>
+	
+	<select id="queryWarehouseByIds" parameterClass="java.lang.String" resultMap="basicWarehouseDOResultMap">
+	    SELECT * FROM basic_warehouse WHERE id in  ($idList$)
+	</select>
+	
+	<select id="querWarehouseNameById" parameterClass="java.lang.Long" resultClass="java.lang.String" >
+	    SELECT name FROM basic_warehouse WHERE id = #id#
+	</select>
+
+    <!-- 通过分表code 查询id-->
+    <select id="queryIdByWarehouseCode" parameterClass="java.lang.Long" resultClass="java.lang.Long">
+        SELECT id FROM basic_warehouse WHERE  warehouse_code = #warehouseCode#
+    </select>
+
+    <!-- 通过仓库id 查code-->
+    <select id="queryWarehouseCodeById" parameterClass="java.lang.Long" resultClass="java.lang.Long">
+        SELECT warehouse_code FROM basic_warehouse WHERE id=#id#
+    </select>
+    
+    <!-- 根据仓库code查询仓库 -->
+    <select id="queryWarehouseByCode" parameterClass="java.lang.String" resultMap="basicWarehouseDOResultMap">
+         SELECT * FROM basic_warehouse WHERE code=#code#
+    </select>
+</sqlMap>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="back_order">
+
+	<typeAlias alias="backOrderDO" type="com.wdk.wms.basic.daoobject.BackOrderDO" />
+	<typeAlias alias="backOrderQuery" type="com.wdk.wms.basic.query.parameters.BackOrderQuery" />
+	<resultMap id="backOrderDOResultMap" class="backOrderDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="waveId" column="wave_id" />
+	    <result property="backContainerOrderId" column="back_container_order_id" />
+	    <result property="warehouseId" column="warehouse_id" />
+	    <result property="ownerId" column="owner_id" />
+	    <result property="backCabinetId" column="back_cabinet_id" />
+	    <result property="shouldBackNumber" column="should_back_number" />
+	    <result property="warehouseCode" column="warehouse_code" />
+	    <result property="actualBackNumber" column="actual_back_number" />
+	    <result property="itemId" column="item_id" />
+	 
+	</resultMap>
+	
+	
+		<!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			gmt_modified desc
+		</dynamic>
+	</sql>
+	
+    <sql id="doUncertainQueryParams">
+		<dynamic prepend="WHERE">
+			<isNotNull property="waveId" prepend="AND">
+        <![CDATA[  
+        wave_id = #waveId#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="warehouseId" prepend="AND">
+        <![CDATA[  
+        warehouse_id = #warehouseId#  
+        ]]>
+			</isNotNull>
+			 <isNotNull property="warehouseCode" prepend="AND">
+        <![CDATA[  
+        warehouse_code = #warehouseCode#  
+        ]]>
+			</isNotNull>
+		</dynamic>
+	</sql>
+
+	<select id="queryBackOrder" resultMap="backOrderDOResultMap"
+		parameterClass="backOrderQuery">
+		SELECT  * FROM 
+		back_order
+	    <include refid="doUncertainQueryParams" />
+	    <include refid="doUncertainOrderBy"/>
+		<dynamic prepend="limit">
+			<isEqual property="isDownload" compareValue="false">
+        <![CDATA[  
+        #begin#, #num#  
+        ]]>
+			</isEqual>
+		</dynamic>
+	</select>
+	
+	
+	<insert id="insertBackOrder" parameterClass="backOrderDO">
+	insert into back_order(gmt_create,gmt_modified,wave_id,back_container_order_id,warehouse_id,owner_id,back_cabinet_id,should_back_number,warehouse_code,actual_back_number,item_id)
+	values(NOW(), NOW(),#waveId#,#backContainerOrderId#,#warehouseId#,#ownerId#,#backCabinetId#,#shouldBackNumber#,#warehouseCode#,#actualBackNumber#,#itemId#)
+	<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+
+	<select id="queryBackOrderCount" resultClass="java.lang.Integer"
+		parameterClass="backOrderQuery">
+		SELECT COUNT(*)
+	    FROM back_order
+	    <include refid="doUncertainQueryParams" />
+	</select>
+	 
+	<select id="queryBackOrderByWaveId" resultMap="backOrderDOResultMap">
+	select * from back_order where wave_id=#waveId# AND warehouse_id=#warehouseId# 
+      AND warehouse_code=#warehouseCode# 
+	</select>
+	
+	<select id="queryByItemIdAndStatus" resultMap="backOrderDOResultMap">
+	select * from back_order where item_id=#itemId# and status=#status# AND warehouse_id=#warehouseId# 
+      AND warehouse_code=#warehouseCode#
+	</select>
+</sqlMap>

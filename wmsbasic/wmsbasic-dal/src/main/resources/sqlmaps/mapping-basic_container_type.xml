@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="basic_container_type">
+
+	<typeAlias alias="basicContainerTypeDO" type="com.wdk.wms.basic.daoobject.BasicContainerTypeDO" />
+	<typeAlias alias="containerTypeQuery" type="com.wdk.wms.basic.query.parameters.ContainerTypeQuery" />
+	<resultMap id="basicContainerTypeDOResultMap" class="basicContainerTypeDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="code" column="code" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="name" column="name" />
+		<result property="status" column="status" />
+		<result property="weight" column="weight" />
+		<result property="length" column="length" />
+		<result property="width" column="width" />
+		<result property="height" column="height" />
+		<result property="volume" column="volume" />
+		<result property="maxWeight" column="max_weight" />
+		<result property="isHanging" column="is_hanging" />
+		<result property="volumeRate" column="volume_rate" />
+		<result property="mark" column="mark" />
+		<result property="isHasGrid" column="is_has_grid" />
+		<result property="gridLayout" column="grid_layout" />
+		<result property="seedLayout" column="seed_layout" />
+		<result property="remark" column="remark" />
+		<result property="feature" column="feature" />
+		<result property="operatorId" column="operator_id" />
+		<result property="operatorIp" column="operator_ip" />
+	</resultMap>
+	
+    <sql id="doUncertainQueryParams">
+		<dynamic prepend="WHERE">
+			<isNotNull property="name" prepend="AND">
+        <![CDATA[  
+        a1.name = #name# 
+        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend="AND">
+        <![CDATA[  
+        a1.status = #status#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="warehouseId" prepend="AND">
+	        <![CDATA[  
+	        a1.warehouse_id = #warehouseId#  
+	        ]]>
+			</isNotNull>
+			
+				<isNotNull property="code" prepend="AND">
+        <![CDATA[  
+        a1.code = #code#  
+        ]]>
+			</isNotNull>
+		</dynamic>
+	</sql>
+	
+    <!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			a1.gmt_modified desc
+		</dynamic>
+	</sql>
+	
+	<select id="queryContainerType" resultMap="basicContainerTypeDOResultMap"
+		parameterClass="containerTypeQuery">
+		SELECT 
+		*
+	    FROM basic_container_type a1
+	    <include refid="doUncertainQueryParams" />
+	     <include refid="doUncertainOrderBy" />
+		<dynamic prepend="limit">
+			<isEqual property="isDownload" compareValue="false">
+        <![CDATA[  
+        #begin#, #num#  
+        ]]>
+			</isEqual>
+		</dynamic>
+	</select>
+	
+	<insert id="insertContainerType" parameterClass="basicContainerTypeDO">
+		INSERT INTO basic_container_type( gmt_create, gmt_modified, code,
+		warehouse_id, name,  weight, length, width, height, volume, max_weight,
+		is_hanging,volume_rate,mark, is_has_grid,grid_layout,seed_layout,remark,
+		operator_id,operator_ip ,status)
+		VALUES (NOW(), NOW(), #code#,
+		#warehouseId#,#name#,#weight#,#length#,#width#,#height#,#volume#,#maxWeight#,
+		#isHanging#,#volumeRate#,#mark#,#isHasGrid#,#gridLayout#,#seedLayout#,#remark#,
+		#operatorId#,#operatorIp#,1)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+	
+	<update id="updateContainerType" parameterClass="basicContainerTypeDO">
+	    UPDATE basic_container_type
+	    SET gmt_modified = now() ,code = #code# , name = #name#  ,mark = #mark#  ,length = #length# ,width = #width# ,
+	    height = #height#  , volume = #volume#,weight = #weight#,max_weight = #maxWeight# ,volume_rate = #volumeRate#,
+	    is_hanging = #isHanging#,remark = #remark# , operator_id = #operatorId#, operator_ip = #operatorIp#
+	    WHERE id = #id#
+	    <!-- 
+	    <dynamic prepend="SET">
+	      <isNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNull>
+	       <isNotNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+			</isNotNull>
+			<isNotNull property="code" prepend=",">
+        <![CDATA[  
+        code = #code#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="name" prepend=",">
+        <![CDATA[  
+        name = #name#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="mark" prepend=",">
+        <![CDATA[  
+        mark = #mark#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="length" prepend=",">
+        <![CDATA[  
+        length = #length#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="width" prepend=",">
+        <![CDATA[  
+        width = #width#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="height" prepend=",">
+        <![CDATA[  
+        height = #height#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="volume" prepend=",">
+        <![CDATA[  
+        volume = #volume#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="weight" prepend=",">
+        <![CDATA[  
+        weight = #weight#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="maxWeight" prepend=",">
+        <![CDATA[  
+        max_weight = #maxWeight#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="volumeRate" prepend=",">
+        <![CDATA[  
+        volume_rate = #volumeRate#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="isHanging" prepend=",">
+        <![CDATA[  
+        is_hanging = #isHanging#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="remark" prepend=",">
+        <![CDATA[  
+        remark = #remark#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="operatorId" prepend=",">
+	        <![CDATA[  
+	        operator_id = #operatorId#
+	        ]]>
+			</isNotNull>
+			<isNotNull property="operatorIp" prepend=",">
+	        <![CDATA[  
+	        operator_ip = #operatorIp#
+	        ]]>
+			</isNotNull>
+			WHERE id = #id#
+	    </dynamic>
+	    -->
+	</update>
+	
+	<select id="queryContainerTypeCount" resultClass="java.lang.Integer"
+		parameterClass="containerTypeQuery">
+		SELECT COUNT(*)
+	    FROM basic_container_type a1
+	    <include refid="doUncertainQueryParams" />
+	</select>
+	
+		<update id="updateContainerTypeStatus" >
+	    UPDATE basic_container_type
+	    <dynamic prepend="SET">	     
+	    <isNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNull>
+	       <isNotNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+			</isNotNull>
+			<isNotNull property="operatorId" prepend=",">
+	        <![CDATA[  
+	        operator_id = #operatorId#
+	        ]]>
+			</isNotNull>
+			<isNotNull property="operatorIp" prepend=",">
+	        <![CDATA[  
+	        operator_ip = #operatorIp#
+	        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend=",">
+        <![CDATA[  
+        status = #status#  
+        ]]>
+			</isNotNull>
+			WHERE id IN
+		  ($idList$)
+	    </dynamic>
+	</update>
+	
+	<select id="queryContainerTypeById" parameterClass="java.lang.Long" resultMap="basicContainerTypeDOResultMap">
+	    SELECT * FROM basic_container_type WHERE id = #id#
+	</select>
+</sqlMap>

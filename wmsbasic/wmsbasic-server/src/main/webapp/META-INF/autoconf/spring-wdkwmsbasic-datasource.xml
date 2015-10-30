@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+      http://www.springframework.org/schema/aop
+             http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+      http://www.springframework.org/schema/tx
+      http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+      http://www.springframework.org/schema/jee
+      http://www.springframework.org/schema/jee/spring-jee-3.1.xsd
+      http://www.springframework.org/schema/context
+      http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+	<bean id="wmsDataSource" class=" com.taobao.tddl.client.jdbc.TDataSource"
+		init-method="init">
+	<!-- 	<property name="appRuleFile" value="classpath:tddl-rule.xml"/> -->
+		<property name="appName" value="WDK_WMS_APP" />
+		<property name="dynamicRule" value="true"/>
+	    <!-- <property name="useLocalConfig" value="true"/> -->
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="wmsDataSource" />
+	</bean>
+
+	<!--事务模板 -->
+	<bean id="transactionTemplate"
+		class="org.springframework.transaction.support.TransactionTemplate">
+		<property name="transactionManager">
+			<ref local="transactionManager" />
+		</property>
+		<!--ISOLATION_DEFAULT 表示由使用的数据库决定 -->
+		<property name="isolationLevelName" value="ISOLATION_DEFAULT" />
+		<property name="propagationBehaviorName" value="PROPAGATION_REQUIRED" />
+	</bean>
+
+
+	<!-- IBTIS 配置 -->
+	<bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="dataSource" ref="wmsDataSource" />
+		<property name="configLocations" value="classpath*:/sqlmap-config.xml" />
+		<property name="mappingLocations" value="classpath*:/sqlmaps/mapping-*.xml" />
+	</bean>
+
+	<bean class="com.alibaba.dxp.daoproxy.config.DaoScannerConfigurer">
+		<property name="useJavassist" value="false" />
+		<property name="sqlMapClientBeanName" value="sqlMapClient" />
+		<property name="basePackage" value="com.wdk.wms.basic.dal.dao" />
+	</bean>
+
+    <!--.......................................................................... -->
+
+</beans>
+
+

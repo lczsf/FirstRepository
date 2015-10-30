@@ -1,0 +1,201 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.wdk.wms.basic</groupId>
+		<artifactId>wmsbasic-all</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>wmsbasic-server</artifactId>
+	<version>${wmsbasic.version}</version>
+	<name>wmsbasic-server</name>
+	<packaging>war</packaging>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.taobao.maven.plugins</groupId>
+				<artifactId>maven-autoconfig-plugin</artifactId>
+				<version>1.0.1-SNAPSHOT</version>
+				<configuration>
+					<needConfigZip>false</needConfigZip>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>autoconfig</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+
+		</resources>
+	</build>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>com.wdk.wms.basic</groupId>
+			<artifactId>wmsbasic-dal</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.wdk.wms.basic</groupId>
+			<artifactId>wmsbasic-client</artifactId>
+		</dependency>
+
+		<!-- ================================================= -->
+		<!-- 日志及相关依赖 -->
+		<!-- ================================================= -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- 将现有的jakarta commons logging的调用转换成lsf4j的调用。 -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+		</dependency>
+		<!-- Hack：确保commons-logging的jar包不被引入，否则将和jcl-over-slf4j冲突 -->
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba.toolkit</groupId>
+			<artifactId>toolkit-common-logging</artifactId>
+		</dependency>
+		<!-- ================================================= -->
+		<!-- Spring框架 -->
+		<!-- ================================================= -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aop</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+		</dependency>
+		<!-- ================================================= -->
+		<!-- iBatis -->
+		<!-- ================================================= -->
+		<dependency>
+			<groupId>org.apache.ibatis</groupId>
+			<artifactId>ibatis-sqlmap</artifactId>
+		</dependency>
+		<!-- ================================================= -->
+		<!-- 单元测试 -->
+		<!-- ================================================= -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.taobao.hsf</groupId>
+			<artifactId>hsfunit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- ================================================= -->
+		<!-- 其他依赖 -->
+		<!-- ================================================= -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba.citrus</groupId>
+			<artifactId>citrus-common-logconfig</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.taobao.common.rjdbc</groupId>
+			<artifactId>common-rjdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.taobao.dw</groupId>
+			<artifactId>dxp.daoproxy</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.taobao.common.dao</groupId>
+			<artifactId>common-dao</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.taobao.hsf</groupId>
+			<artifactId>hsf.app.spring</artifactId>
+		</dependency>
+	</dependencies>
+</project>

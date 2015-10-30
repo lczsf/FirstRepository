@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="basic_warehouse_area">
+
+	<typeAlias alias="basicWarehouseAreaDO" type="com.wdk.wms.basic.daoobject.BasicWarehouseAreaDO" />
+	<typeAlias alias="warehouseAreaQuery" type="com.wdk.wms.basic.query.parameters.WarehouseAreaQuery" />
+	<resultMap id="basicWarehouseAreaDOResultMap" class="basicWarehouseAreaDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="code" column="code" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="status" column="status" />
+		<result property="name" column="name" />
+		<result property="type" column="type" />
+	    <result property="pickSort" column="pick_sort" />
+	    <result property="remark" column="remark" />
+		<result property="operatorId" column="operator_id" />
+		<result property="operatorIp" column="operator_ip" />
+		<result property="feature" column="feature" />
+		<result property="partnerId" column="partner_id" />
+	</resultMap>
+	
+    <sql id="doUncertainQueryParams">
+		<dynamic prepend="WHERE">
+			<isNotNull property="code" prepend="AND">
+        <![CDATA[  
+        code = #code#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="name" prepend="AND">
+        <![CDATA[  
+        name = #name#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend="AND">
+        <![CDATA[  
+        status = #status#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="warehouseId" prepend="AND">
+        <![CDATA[  
+        warehouse_id = #warehouseId#  
+        ]]>
+			</isNotNull>
+		</dynamic>
+	</sql>
+	
+    <!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			gmt_modified desc
+		</dynamic>
+	</sql>
+	
+	<select id="queryWarehouseArea" resultMap="basicWarehouseAreaDOResultMap"
+		parameterClass="warehouseAreaQuery">
+		SELECT 
+		*
+	    FROM basic_warehouse_area
+	    <include refid="doUncertainQueryParams" />
+	    <include refid="doUncertainOrderBy" />
+		<dynamic prepend="limit">
+			<isEqual property="isDownload" compareValue="false">
+        <![CDATA[  
+        #begin#, #num#  
+        ]]>
+			</isEqual>
+		</dynamic>
+	</select>
+	
+	<insert id="insertWarehouseArea" parameterClass="basicWarehouseAreaDO">
+		INSERT INTO basic_warehouse_area( gmt_create, gmt_modified, 
+		code, name,partner_id,
+		warehouse_id,type, pick_sort, remark, operator_id, operator_ip,status)
+		VALUES (NOW(), NOW(), 
+		#code#,#name#,#partnerId#,
+		#warehouseId#,#type#,#pickSort#,#remark#,#operatorId#,#operatorIp#,1)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+	
+	<update id="updateWarehouseArea" parameterClass="basicWarehouseAreaDO">
+	    UPDATE basic_warehouse_area
+	    SET gmt_modified = now(),code = #code#,name = #name#  ,pick_sort = #pickSort#,remark = #remark#,
+	    type = #type# , operator_id = #operatorId#, operator_ip = #operatorIp#,warehouse_id = #warehouseId# 
+	    WHERE id = #id#
+	    <!--  
+	    <dynamic prepend="SET">
+	      <isNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNull>
+	       <isNotNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+			</isNotNull>
+			<isNotNull property="code" prepend=",">
+        <![CDATA[  
+        code = #code#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="name" prepend=",">
+        <![CDATA[  
+        name = #name#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="pickSort" prepend=",">
+        <![CDATA[  
+        pick_sort = #pickSort#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="remark" prepend=",">
+        <![CDATA[  
+        remark = #remark#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="type" prepend=",">
+        <![CDATA[  
+        type = #type#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="operatorId" prepend=",">
+        <![CDATA[  
+        operator_id = #operatorId#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="operatorIp" prepend=",">
+        <![CDATA[  
+        operator_ip = #operatorIp#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="warehouseId" prepend=",">
+        <![CDATA[  
+        warehouse_id = #warehouseId#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend=",">
+        <![CDATA[  
+        status = #status#  
+        ]]>
+			</isNotNull>
+			WHERE id = #id#
+	    </dynamic>
+	    -->
+	</update>
+	
+	<select id="queryWarehouseAreaCount" resultClass="java.lang.Integer"
+		parameterClass="warehouseAreaQuery">
+		SELECT COUNT(*)
+	    FROM basic_warehouse_area
+	    <include refid="doUncertainQueryParams" />
+	</select>
+	
+		<update id="updateWarehouseAreaStatus" >
+	    UPDATE basic_warehouse_area
+	    <dynamic prepend="SET">	     
+	    <isNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNull>
+	       <isNotNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+			</isNotNull>
+			<isNotNull property="operatorId" prepend=",">
+        <![CDATA[  
+        operator_id = #operatorId#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="operatorIp" prepend=",">
+        <![CDATA[  
+        operator_ip = #operatorIp#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend=",">
+        <![CDATA[  
+        status = #status#  
+        ]]>
+			</isNotNull>
+			WHERE id IN
+		  ($idList$)
+	    </dynamic>
+	</update>
+	
+	<select id="queryWarehouseAreaById" parameterClass="java.lang.Long" resultMap="basicWarehouseAreaDOResultMap">
+	    SELECT * FROM basic_warehouse_area WHERE id = #id# 
+	</select>
+</sqlMap>

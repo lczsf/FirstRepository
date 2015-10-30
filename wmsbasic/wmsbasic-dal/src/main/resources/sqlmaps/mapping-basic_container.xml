@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="basic_container">
+
+	<typeAlias alias="basicContainerDO" type="com.wdk.wms.basic.daoobject.BasicContainerDO" />
+	<typeAlias alias="containerQuery" type="com.wdk.wms.basic.query.parameters.ContainerQuery" />
+	<resultMap id="basicContainerDOResultMap" class="basicContainerDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="code" column="code" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="name" column="name" />
+		<result property="containerTypeId" column="container_type_id" />
+		<result property="status" column="status" />
+		<result property="rfid" column="rfid" />
+		<result property="remark" column="remark" />
+		<result property="feature" column="feature" />
+		<result property="operatorId" column="operator_id" />
+		<result property="operatorIp" column="operator_ip" />
+	</resultMap>
+	
+    <sql id="doUncertainQueryParams">
+		<dynamic prepend="WHERE">
+			<isNotNull property="name" prepend="AND">
+        <![CDATA[  
+        a1.name = #name# 
+        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend="AND">
+        <![CDATA[  
+        a1.status = #status#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="containerTypeId" prepend="AND">
+	        <![CDATA[  
+	        a1.container_type_id = #containerTypeId#  
+	        ]]>
+			</isNotNull>
+			<isNotNull property="warehouseId" prepend="AND">
+	        <![CDATA[  
+	        a1.warehouse_id = #warehouseId#  
+	        ]]>
+			</isNotNull>
+			<isNotNull property="code" prepend="AND">
+	        <![CDATA[  
+	        a1.code = #code#  
+	        ]]>
+			</isNotNull>
+		</dynamic>
+	</sql>
+	
+	<!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			a1.gmt_modified desc
+		</dynamic>
+	</sql>
+
+	<select id="queryContainer" resultMap="basicContainerDOResultMap"
+		parameterClass="containerQuery">
+		SELECT 
+		*
+	    FROM basic_container a1
+	    <include refid="doUncertainQueryParams" />
+	    <include refid="doUncertainOrderBy" />
+		<dynamic prepend="limit">
+			<isEqual property="isDownload" compareValue="false">
+        <![CDATA[  
+        #begin#, #num#  
+        ]]>
+			</isEqual>
+		</dynamic>
+	</select>
+	
+	<insert id="insertContainer" parameterClass="basicContainerDO">
+		INSERT INTO basic_container( gmt_create, gmt_modified, code,
+		warehouse_id, name, container_type_id, rfid,  operator_id,
+		operator_ip, remark, status)
+		VALUES (NOW(), NOW(), #code#,
+		#warehouseId#,#name#,#containerTypeId#,#rfid#,#operatorId#,
+	    #operatorIp#,#remark#,#status#)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+	
+	<update id="updateContainer" parameterClass="basicContainerDO">
+	    UPDATE basic_container
+	    SET gmt_modified = now(),code = #code# , name = #name# ,container_type_id = #containerTypeId# ,
+	     rfid = #rfid#  ,remark = #remark#   ,operator_id=#operatorId# ,operator_ip=#operatorIp#
+	     	WHERE id = #id#
+	     	<!--  
+	    <dynamic prepend="SET">
+	      <isNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNull>
+	       <isNotNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+			</isNotNull>
+			<isNotNull property="code" prepend=",">
+        <![CDATA[  
+        code = #code#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="name" prepend=",">
+        <![CDATA[  
+        name = #name#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="containerBarcode" prepend=",">
+        <![CDATA[  
+        container_barcode = #containerBarcode#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="containerTypeId" prepend=",">
+        <![CDATA[  
+        container_type_id = #containerTypeId#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="rfid" prepend=",">
+        <![CDATA[  
+        rfid = #rfid#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="remark" prepend=",">
+        <![CDATA[  
+        remark = #remark#  
+        ]]>
+			</isNotNull>
+			WHERE id = #id#
+	    </dynamic>
+	    -->
+	</update>
+	
+	<select id="queryContainerCount" resultClass="java.lang.Integer"
+		parameterClass="containerQuery">
+		SELECT COUNT(*)
+	    FROM basic_container a1
+	    <include refid="doUncertainQueryParams" />
+	</select>
+	
+		<update id="updateContainerStatus" >
+	    UPDATE basic_container
+	    <dynamic prepend="SET">	     
+	    <isNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNull>
+	       <isNotNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+			</isNotNull>
+			<isNotNull property="operatorId" prepend=",">
+	        <![CDATA[  
+	        operator_id = #operatorId#
+	        ]]>
+			</isNotNull>
+			<isNotNull property="operatorIp" prepend=",">
+	        <![CDATA[  
+	        operator_ip = #operatorIp#
+	        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend=",">
+        <![CDATA[  
+        status = #status#  
+        ]]>
+			</isNotNull>
+			WHERE id IN
+		  ($waveIdList$)
+	    </dynamic>
+	</update>
+	
+	<select id="queryContainerById" parameterClass="java.lang.Long" resultMap="basicContainerDOResultMap">
+	    SELECT * FROM basic_container WHERE id = #id#
+	</select>
+	
+	<select id="queryContainerByCode"  resultMap="basicContainerDOResultMap">
+	    SELECT * FROM basic_container WHERE code = #code# AND warehouse_id=#warehouseId#
+	</select>
+	
+	<update id="updateStatusByContainerCode">
+	    UPDATE basic_container 
+        <dynamic prepend="SET">	     
+	    <isNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNull>
+	       <isNotNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+			</isNotNull>
+			<isNotNull property="operatorId" prepend=",">
+	        <![CDATA[  
+	        operator_id = #operatorId#
+	        ]]>
+			</isNotNull>
+			<isNotNull property="operatorIp" prepend=",">
+	        <![CDATA[  
+	        operator_ip = #operatorIp#
+	        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend=",">
+        <![CDATA[  
+        status = #status#  
+        ]]>
+			</isNotNull>
+			WHERE  code = #containerCode# AND warehouse_id=#warehouseId#
+	    </dynamic>
+	</update>
+	
+	<insert id="insertContainerList" >
+	   INSERT INTO basic_container( gmt_create, gmt_modified, code,
+		warehouse_id, name, container_type_id, rfid,  operator_id,
+		operator_ip, remark, status)
+		VALUES 
+		<iterate conjunction=","  property="containerList">
+		(NOW(), NOW(), #containerList[].code#,
+		#containerList[].warehouseId#,#containerList[].name#,#containerList[].containerTypeId#,#containerList[].rfid#,#containerList[].operatorId#,
+	    #containerList[].operatorIp#,#containerList[].remark#,#status#)
+		</iterate>
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+	
+	<update id="updateContainerByCodes">
+		UPDATE basic_container 
+        <dynamic prepend="SET">	     
+	    <isNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNull>
+	       <isNotNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+			</isNotNull>
+			<isNotNull property="operatorId" prepend=",">
+	        <![CDATA[  
+	        operator_id = #operatorId#
+	        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend=",">
+		        <![CDATA[  
+		        status = #status#  
+		        ]]>
+			</isNotNull>
+			
+			    where code in
+			    <iterate conjunction="," property="containerCodes" open="(" close=")">
+					#containerCodes[]#
+				</iterate>
+			
+			 AND warehouse_id=#warehouseId#
+	    </dynamic>
+	</update>
+	
+	
+	
+	
+</sqlMap>

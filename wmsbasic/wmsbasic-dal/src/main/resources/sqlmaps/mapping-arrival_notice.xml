@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="arrival_notice">
+
+	<typeAlias alias="arrivalNoticeDO" type="com.wdk.wms.basic.daoobject.ArrivalNoticeDO" />
+	<typeAlias alias="arrivalNoticeQuery" type="com.wdk.wms.basic.query.parameters.ArrivalNoticeQuery" />
+
+	<resultMap id="arrivalNoticeDOResultMap" class="arrivalNoticeDO">
+	    <result property="asnCode" column="asn_code" />
+	    <result property="bizOrderCode" column="biz_order_code" />
+	    <result property="bizOrderType" column="biz_order_type" />
+	    <result property="courierCode" column="courier_code" />
+	    <result property="warehouseId" column="warehouse_id" />
+	    <result property="ownerId" column="owner_id" />
+	    <result property="supplierId" column="supplier_id" />
+	    <result property="supplierCode" column="supplier_code" />
+	    <result property="arrivalNoticeDate" column="arrival_notice_date" />
+	    <result property="status" column="status" />
+	    <result property="remark" column="remark" />
+	    <result property="gmtCreate" column="gmt_create" />
+	    <result property="gmtModified" column="gmt_modified" />
+	    <result property="feature" column="feature" />
+	    <result property="uploadPageSize" column="upload_page_size" />
+	    <result property="operatorId" column="operator_id" />
+	    <result property="invalidDate" column="invalid_date" />
+        <result property="arrivalDate" column="arrival_date"/>
+	    <result property="id" column="id" />
+	</resultMap>
+	
+	<!--查询条件-->
+    <sql id="queryParam">
+        <dynamic prepend="WHERE">
+            <isNotNull property="asnCode" prepend="AND">
+				<![CDATA[t.asn_code =#asnCode#]]>
+            </isNotNull>
+            <isNotNull property="bizOrderCode" prepend="AND">
+				<![CDATA[t.biz_order_code=#bizOrderCode#]]>
+            </isNotNull>
+            <isNotNull property="status" prepend="AND">
+				<![CDATA[t.status =#status#]]>
+            </isNotNull>
+            <isNotNull property="warehouseId" prepend="AND">
+				<![CDATA[t.warehouse_id =#warehouseId#]]>
+            </isNotNull>
+			<isNotNull property="supplierId" prepend="AND">
+				<![CDATA[t.supplier_id =#supplierId#]]>
+			</isNotNull>
+            <isNotNull property="beginDate" prepend="AND">
+				<![CDATA[t.arrival_notice_date >= #beginDate#]]>
+            </isNotNull>
+            <isNotNull property="endDate" prepend="AND">
+				<![CDATA[t.arrival_notice_date <= #endDate#]]>
+            </isNotNull>
+            <isNotNull property="itemCode" prepend="AND">
+                <![CDATA[t.id IN (SELECT DISTINCT asn_id FROM arrival_notice_detail WHERE item_code = #itemCode# AND warehouse_code = #warehouseCode#)]]>
+            </isNotNull>
+        </dynamic>
+    </sql>
+
+
+    <!--排序条件-->
+    <sql id="doUncertainOrderBy">
+        <dynamic prepend="ORDER BY">
+            t.gmt_modified desc
+        </dynamic>
+    </sql>
+
+	<insert id="insertArrivalNotice" parameterClass="arrivalNoticeDO">
+        insert into
+        arrival_notice(asn_code,biz_order_code,biz_order_type,courier_code,warehouse_id,owner_id,
+        supplier_id,supplier_code,arrival_notice_date,status,remark,gmt_create,gmt_modified,
+        feature,upload_page_size,operator_id,invalid_date,arrival_date)
+        values(#asnCode#,#bizOrderCode#,#bizOrderType#,#courierCode#,#warehouseId#,#ownerId#,
+        #supplierId#,#supplierCode#,#arrivalNoticeDate#,#status#,#remark#,now(),now(),
+        #feature#,#uploadPageSize#,#operatorId#,#invalidDate#,#arrivalDate#)
+	    <selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+	
+	<!--查询列表,支持分页和不分页-->
+	<select id="queryArrivalNotice" resultMap="arrivalNoticeDOResultMap"
+		parameterClass="arrivalNoticeQuery">
+		SELECT t.*
+		FROM arrival_notice t
+		<include refid="queryParam"/>
+        <include refid="doUncertainOrderBy"/>
+		<dynamic prepend="limit">
+			<isNotEqual property="isDownload" compareValue="true">
+                <![CDATA[ #begin#, #num#]]>
+			</isNotEqual>
+		</dynamic>
+	</select>
+	
+	<!--查询数量-->
+	<select id="queryArrivalNoticeCount" resultClass="java.lang.Integer"
+		parameterClass="arrivalNoticeQuery">
+		SELECT count(*)
+		FROM arrival_notice t
+		<include refid="queryParam"/>
+	</select>
+
+    <!-- 通过外部单号查询-->
+    <select id="queryArrivalNoticeByCode" resultMap="arrivalNoticeDOResultMap">
+        SELECT * FROM arrival_notice t
+        WHERE (t.biz_order_code = #bizCode# or t.asn_code = #bizCode#) AND t.warehouse_id = #warehouseId#
+    </select>
+
+    <!--通过通知单id获取-->
+    <select id="queryById" resultMap="arrivalNoticeDOResultMap">
+        SELECT * FROM arrival_notice t
+        WHERE t.id = #id# AND t.warehouse_id = #warehouseId#
+    </select>
+
+    <!--通过id更新状态-->
+    <update id="updateStatusById">
+        UPDATE arrival_notice SET
+        status=#status#,
+        operator_id = #operatorId#
+        WHERE id=#id# AND warehouse_id = #warehouseId#
+    </update>
+
+    <!-- 更新操作人-->
+    <update id="updateOperatorId">
+        UPDATE arrival_notice SET
+        operator_id = #operatorId#
+        WHERE id=#id# AND warehouse_id = #warehouseId#
+    </update>
+
+
+    <!-- 通过id 和 仓库id查询-->
+    <select id="queryByIdAndWarehouseId" resultMap="arrivalNoticeDOResultMap">
+        SELECT * FROM arrival_notice t
+        WHERE t.id = #id# AND t.warehouse_id = #whId#
+    </select>
+</sqlMap>

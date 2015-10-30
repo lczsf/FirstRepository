@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="sales_order">
+
+	<typeAlias alias="salesOrderDO" type="com.wdk.wms.basic.daoobject.SalesOrderDO" />
+	<typeAlias alias="salesOrderQuery" type="com.wdk.wms.basic.query.parameters.SalesOrderQuery" />
+    
+	<resultMap id="salesOrderResultMap" class="salesOrderDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="externalSalesNumber" column="external_sales_number" />
+		<result property="type" column="type" />
+		<result property="outBatchCode" column="out_batch_code" />
+		<result property="waveId" column="wave_id" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="ownerId" column="owner_id" />
+		<result property="performanceType" column="performance_type" />
+		<result property="serviceType" column="service_type" />
+		<result property="outOperationMode" column="out_operation_mode" />
+		<result property="receiverName" column="receiver_name" />
+		<result property="receiverTel" column="receiver_tel" />
+		<result property="postAddress" column="post_address" />
+		<result property="postage" column="postage" />
+		<result property="totalOrderAmount" column="total_order_amount" />
+		<result property="discountAmount" column="discount_amount" />
+		<result property="payOrderAmount" column="pay_order_amount" />
+		<result property="alipayPaymentAmount" column="alipay_payment_amount" />
+		<result property="alipayRedEnvelope" column="alipay_red_envelope" />
+		<result property="paidAmount" column="paid_amount" />
+		<result property="compensationAmount" column="compensation_amount" />
+		<result property="invoiceTitle" column="invoice_title" />
+		<result property="invoiceType" column="invoice_type" />
+		<result property="warehouseCode" column="warehouse_code" />
+		<result property="invoiceAmount" column="invoice_amount" /> 
+		<result property="orderServiceAmount" column="order_service_amount" />
+	</resultMap>
+
+	<!--查询条件 -->
+	<sql id="queryParam">
+		<dynamic prepend="WHERE">
+			<isNotNull property="externalSalesNumber" prepend="AND">
+                <![CDATA[a1.external_sales_number =#externalSalesNumber#]]>
+			</isNotNull>
+			<isNotNull property="type" prepend="AND">
+                <![CDATA[a1.type=#type#]]>
+			</isNotNull>
+			<isNotNull property="waveId" prepend="AND">
+                <![CDATA[a1.wave_id =#waveId#]]>
+			</isNotNull>
+			<isNotNull property="warehouseId" prepend="AND">
+                <![CDATA[a1.warehouse_id =#warehouseId#]]>
+			</isNotNull>
+			<isNotNull property="outBatchCode" prepend="AND">
+                <![CDATA[a1.out_batch_code=#outBatchCode#]]>
+			</isNotNull>
+			<isNotNull property="performanceType" prepend="AND">
+                <![CDATA[a1.performance_type =#performanceType#]]>
+			</isNotNull>
+			<isNotNull property="warehouseCode" prepend="AND">
+                <![CDATA[a1.warehouse_code =#warehouseCode#]]>
+			</isNotNull>
+		</dynamic>
+	</sql>
+	
+	<!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			a1.gmt_modified desc
+		</dynamic>
+	</sql>
+
+	<insert id="insertSalesOrder" parameterClass="salesOrderDO">
+		insert into sales_order(gmt_create,gmt_modified,external_sales_number,type,out_batch_code,wave_id,warehouse_id,owner_id,performance_type,service_type,
+		out_operation_mode,receiver_name,receiver_tel,post_address,postage,total_order_amount,discount_amount,pay_order_amount,alipay_payment_amount,
+		alipay_red_envelope,paid_amount,compensation_amount,invoice_title,invoice_type,warehouse_code,invoice_amount,order_service_amount)
+	values(now(),now(),#externalSalesNumber#,#type#,#outBatchCode#,#waveId#,#warehouseId#,#ownerId#,#performanceType#,#serviceType#,
+	#outOperationMode#,#receiverName#,#receiverTel#,#postAddress#,#postage#,#totalOrderAmount#,#discountAmount#,#payOrderAmount#,#alipayPaymentAmount#,
+	#alipayRedEnvelope#,#paidAmount#,#compensationAmount#,#invoiceTitle#,#invoiceType#,#warehouseCode#,#invoiceAmount#,#orderServiceAmount#)
+	
+	<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+
+	<!--查询列表,支持分页和不分页 -->
+	<select id="querySalesOrder" resultMap="salesOrderResultMap"
+		parameterClass="salesOrderQuery">
+		SELECT a1.*
+		FROM sales_order a1
+		<include refid="queryParam" />
+		<include refid="doUncertainOrderBy" />
+		<dynamic prepend="limit">
+			<isNotEqual property="isDownload" compareValue="true">
+                <![CDATA[ #begin#, #num#]]>
+			</isNotEqual>
+		</dynamic>
+	</select>
+   
+   <!-- 查询列表总数 -->
+
+   <select id="querySalesOrderCount"  resultClass="java.lang.Integer" parameterClass="salesOrderQuery">
+		SELECT count(*)
+		FROM sales_order a1
+		<include refid="queryParam" />
+	</select>
+   
+   <update id="updateSalesOrder" parameterClass="salesOrderDO">
+	update sales_order
+		set  gmt_modified=now(),external_sales_number=#externalSalesNumber#,type=#type#,out_batch_code=#outBatchCode#,
+		wave_id=#waveId#,warehouse_id=#warehouseId#,owner_id=#ownerId#,performance_type=#performanceType#,
+		service_type=#serviceType#,out_operation_mode=#outOperationMode#,receiver_name=#receiverName#,
+		receiver_tel=#receiverTel#,post_address=#postAddress#,postage=#postage#,total_order_amount=#totalOrderAmount#,
+		discount_amount=#discountAmount#,pay_order_amount=#payOrderAmount#,alipay_payment_amount=#alipayPaymentAmount#,
+		alipay_red_envelope=#alipayRedEnvelope#,paid_amount=#paidAmount#,compensation_amount=#compensationAmount#,
+		invoice_title=#invoiceTitle#,invoice_type=#invoiceType# ,invoice_amount=#invoiceAmount#,order_service_amount=#orderServiceAmount#
+		where id = #id# AND warehouse_code=#warehouseCode#
+	</update>
+	
+	<select id="querySalesOrderById" resultMap="salesOrderResultMap">
+	  SELECT * FROM sales_order WHERE id=#id# AND warehouse_code=#warehouseCode# AND warehouse_id=#warehouseId#
+	</select>
+	
+	<select id="querySalesOrderByOutCode" resultMap="salesOrderResultMap">
+	  SELECT * FROM sales_order WHERE external_sales_number=#externalSalesNumber# AND 
+	  <isNotNull property="outBatchCode">
+	   out_batch_code=#outBatchCode#
+	  </isNotNull>
+	  <isNull property="outBatchCode">
+	   out_batch_code is null
+	  </isNull>
+	 AND owner_id=#ownerId# AND warehouse_id=#warehouseId# AND warehouse_code=#warehouseCode#
+	</select>
+
+    <!-- 通过波次id查询-->
+    <select id="queryByWaveId" resultMap="salesOrderResultMap">
+        SELECT * FROM sales_order
+        WHERE wave_id=#waveId# AND warehouse_id=#warehouseId# AND warehouse_code=#warehouseCode#
+    </select>
+    
+    <select id="querySalesOrderByOutBatchCode" resultMap="salesOrderResultMap">
+     SELECT * FROM sales_order
+        WHERE out_batch_code=#outBatchCode# AND warehouse_id=#warehouseId# AND warehouse_code=#warehouseCode#
+    </select>
+    
+    <update id="updateCompensationAmount" >
+     update sales_order set compensation_amount=#compensationAmount# where id=#id# AND warehouse_id=#warehouseId# AND warehouse_code=#warehouseCode#
+    </update>
+</sqlMap>

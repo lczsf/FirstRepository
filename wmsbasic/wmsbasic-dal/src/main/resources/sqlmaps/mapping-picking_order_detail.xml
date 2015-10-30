@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="picking_order_detail">
+
+	<typeAlias alias="pickingOrderDetailDO" type="com.wdk.wms.basic.daoobject.PickingOrderDetailDO" />
+	<typeAlias alias="pickingOrderDetailQuery" type="com.wdk.wms.basic.query.parameters.PickingOrderDetailQuery" />
+    
+	<resultMap id="pickingOrderDetailResultMap" class="pickingOrderDetailDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="pickingOrderId" column="picking_order_id" />
+		<result property="itemId" column="item_id" />
+		<result property="itemName" column="item_name" />
+		<result property="mainUnit" column="main_unit" />
+		<result property="mainShouldNumber" column="main_should_number" />
+		<result property="mainActualNumber" column="main_actual_number" />
+		<result property="pickingUnit" column="picking_unit" />
+		<result property="pickingShouldNumber" column="picking_should_number" />
+		<result property="pickingActualNumber" column="picking_actual_number" /> 
+		<result property="accessorialService" column="accessorial_service" />
+		<result property="warehouseCode" column="warehouse_code" />
+		<result property="status" column="status" />
+		<result property="cabinetId" column="cabinet_id" />
+		<result property="salesOrderDetailId" column="sales_order_detail_id" />
+		<result property="waveId" column="wave_id" />
+	</resultMap>
+
+	<!--查询条件 -->
+	<sql id="queryParam">
+		<dynamic prepend="WHERE">
+			<isNotNull property="pickingOrderId" prepend="AND">
+                <![CDATA[a1.picking_order_id =#pickingOrderId#]]>
+			</isNotNull>
+			<isNotNull property="status" prepend="AND">
+                <![CDATA[a1.status =#status#]]>
+			</isNotNull>
+			<isNotNull property="warehouseCode" prepend="AND">
+                <![CDATA[a1.warehouse_code =#warehouseCode#]]>
+			</isNotNull>
+			<isNotNull property="waveId" prepend="AND">
+                <![CDATA[a1.wave_id =#waveId#]]>
+			</isNotNull>
+		</dynamic>
+	</sql>
+	
+	<!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			a1.gmt_modified desc
+		</dynamic>
+	</sql>
+
+	<insert id="insertPickingOrderDetail" parameterClass="pickingOrderDetailDO">
+	insert into picking_order_detail(gmt_create,gmt_modified,picking_order_id,item_id,item_name,main_unit,main_should_number,main_actual_number,picking_unit,picking_should_number,picking_actual_number ,accessorial_service,warehouse_code,status,cabinet_id,sales_order_detail_id,wave_id)
+	values(now(),now(),#pickingOrderId#,#itemId#,#itemName#,#mainUnit#,#mainShouldNumber#,#mainActualNumber#,#pickingUnit#,#pickingShouldNumber#,#pickingActualNumber# ,#accessorialService#,#warehouseCode#,#status#,#cabinetId#,#salesOrderDetailId#,#waveId#)
+	<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+
+	<!--查询列表,支持分页和不分页 -->
+	<select id="queryPickingOrderDetail" resultMap="pickingOrderDetailResultMap"
+		parameterClass="pickingOrderDetailQuery">
+		SELECT a1.*
+		FROM picking_order_detail a1
+		<include refid="queryParam" />
+		<include refid="doUncertainOrderBy" />
+		<dynamic prepend="limit">
+			<isNotEqual property="isDownload" compareValue="true">
+                <![CDATA[ #begin#, #num#]]>
+			</isNotEqual>
+		</dynamic>
+	</select>
+   
+   <!-- 查询列表总数 -->
+
+   <select id="queryPickingOrderDetailCount"  resultClass="java.lang.Integer" parameterClass="pickingOrderDetailQuery">
+		SELECT count(*)
+		FROM picking_order_detail a1
+		<include refid="queryParam" />
+	</select>
+   
+   <update id="updatePickingOrderDetail" parameterClass="pickingOrderDetailDO">
+	update picking_order_detail
+		set  gmt_modified=now(),item_id=#itemId#,item_name=#itemName#,main_unit=#mainUnit#,main_should_number=#mainShouldNumber#,main_actual_number=#mainActualNumber#,picking_unit=#pickingUnit#,picking_should_number=#pickingShouldNumber#,picking_actual_number=#pickingActualNumber# ,accessorial_service=#accessorialService#,status=#status#,cabinet_id=#cabinetId#,sales_order_detail_id=#salesOrderDetailId#,wave_id=#waveId#
+		where id = #id#  AND warehouse_code=#warehouseCode# AND  picking_order_id=#pickingOrderId#
+	</update>
+	
+	<select id="queryByPickingOrderIdAndWarehouseCode" resultMap="pickingOrderDetailResultMap">
+	 SELECT * FROM picking_order_detail WHERE picking_order_id=#pickingOrderId# AND warehouse_code=#warehouseCode# AND wave_id=#waveId#
+	</select>
+	
+	<select id="queryByPickingOrderDetailId" resultMap="pickingOrderDetailResultMap">
+	 SELECT * FROM picking_order_detail WHERE picking_order_id=#pickingOrderId# AND id=#pickingOrderDetailId# AND warehouse_code=#warehouseCode# AND wave_id=#waveId#
+	</select>
+	
+	<select id="sortPickingOrderDetailDOs" resultMap="pickingOrderDetailResultMap">
+	select t1.* from picking_order_detail t1,basic_cabinet t2 where t1.cabinet_id=t2.id
+	and	t1.warehouse_code=#warehouseCode# and t1.picking_order_id=#pickingOrderId# and t1.wave_id=#waveId#
+	and t1.id in
+	<iterate conjunction="," property="detailList" open="(" close=")">
+					#detailList[]#
+	</iterate>
+	 order by t2.pick_priority
+	</select>
+	
+	<select id="queryByPickingOrderId"  resultMap="pickingOrderDetailResultMap">
+	SELECT * FROM picking_order_detail WHERE picking_order_id=#pickingOrderId# AND warehouse_code=#warehouseCode# AND wave_id=#waveId#
+	</select>
+	
+	<select id="queryByPickingOrderIdAndItemAndCabinet" resultMap="pickingOrderDetailResultMap">
+	SELECT * FROM picking_order_detail WHERE picking_order_id=#pickingOrderId#  AND item_id=#itemId# AND cabinet_id=#cabinetId# AND warehouse_code=#warehouseCode# AND wave_id=#waveId#
+	</select>
+	
+	<select id="queryBySalesOrderDetailIdAndCabinet" resultMap="pickingOrderDetailResultMap">
+	SELECT * FROM picking_order_detail WHERE picking_order_id=#pickingOrderId# AND sales_order_detail_id=#salesOrderDetailId# AND cabinet_id=#cabinetId# AND warehouse_code=#warehouseCode# AND wave_id=#waveId#
+	</select>
+	
+	<update id="updateQuanityByArguments">
+	UPDATE picking_order_detail 
+	<dynamic prepend="SET">
+	  <isNotNull property="mainShouldNumeric" prepend=",">
+	       main_should_number=  #mainShouldNumeric#
+	  </isNotNull>
+	  <isNotNull property="pickingShouldNumeric" prepend=",">
+	   	   picking_should_number= #pickingShouldNumeric#
+	  </isNotNull>
+	  <isNotNull property="mainAddNumeric" prepend=",">
+	  		main_actual_number	= #mainAddNumeric#+main_actual_number
+	  </isNotNull>
+	  <isNotNull property="pickingAddNumeric" prepend=",">
+	  		picking_actual_number =	#pickingAddNumeric#+picking_actual_number
+	  </isNotNull>
+	</dynamic>
+	   WHERE picking_order_id=#pickingOrderId# AND id=#pickOrderDetailId# AND warehouse_code=#warehouseCode# AND wave_id=#waveId#
+	</update>
+	
+	<update id="updateSalesOrderDeailId" >
+	UPDATE picking_order_detail SET sales_order_detail_id=#salesOrderDetailId# WHERE 
+	picking_order_id=#pickingOrderId# AND id=#pickOrderDetailId# AND warehouse_code=#warehouseCode# AND wave_id=#waveId#
+	</update>
+	
+	<update id="updateStatus" >
+	UPDATE picking_order_detail SET status=#status# WHERE 
+	picking_order_id=#pickingOrderId# AND id=#pickingOrderDetailId# AND warehouse_code=#warehouseCode# AND wave_id=#waveId#
+	</update>
+</sqlMap>

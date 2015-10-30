@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="putaway_order_detail">
+
+	<typeAlias alias="putawayOrderDetailDO" type="com.wdk.wms.basic.daoobject.PutawayOrderDetailDO" />
+    <typeAlias alias="putawayOrderDetailQuery" type="com.wdk.wms.basic.query.parameters.PutawayOrderDetailQuery" />
+    
+	<resultMap id="putawayOrderDetailDOResultMap" class="putawayOrderDetailDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+	    <result property="putawayOrderId" column="putaway_order_id" />
+	    <result property="cabinetId" column="cabinet_id" />
+	    <result property="itemId" column="item_id" />
+	    <result property="itemCode" column="item_code" />
+	    <result property="itemBatchId" column="item_batch_id" />
+	    <result property="feature" column="feature" />
+	    <result property="actualCabinetId" column="actual_cabinet_id" />
+	    <result property="unit" column="unit" />
+	    <result property="spec" column="spec" />
+	    <result property="planPackageQuantity" column="plan_package_quantity" />
+	    <result property="actualPackageQuantity" column="actual_package_quantity" />
+	    <result property="warehouseCode" column="warehouse_code" />
+	</resultMap>
+	
+     <sql id="queryParam">
+		<dynamic prepend="WHERE">
+		<isNotNull property="putawayOrderId" prepend="AND">
+                <![CDATA[putaway_order_id =#putawayOrderId#]]>
+			</isNotNull>
+			<isNotNull property="warehouseCode" prepend="AND">
+                <![CDATA[warehouse_code =#warehouseCode#]]>
+			</isNotNull>
+	    </dynamic>
+	</sql>
+	
+	<!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			gmt_modified desc
+		</dynamic>
+	</sql>
+
+	<insert id="insertPutawayOrderDetail" parameterClass="putawayOrderDetailDO">
+		insert into putaway_order_detail(gmt_create,gmt_modified,putaway_order_id,cabinet_id,item_id,item_code,item_batch_id, feature,actual_cabinet_id,unit,spec,plan_package_quantity,actual_package_quantity,warehouse_code)
+	    values(now(),now(),#putawayOrderId#,#cabinetId#,#itemId#,#itemCode#,#itemBatchId#,#feature#,#actualCabinetId#,#unit#,#spec#,#planPackageQuantity#,#actualPackageQuantity#,#warehouseCode#)
+	    <selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+	
+	<select id="queryPutawayOrderDetail" resultMap="putawayOrderDetailDOResultMap" 
+		parameterClass="putawayOrderDetailQuery">
+		select * from putaway_order_detail
+        <include refid="queryParam" />
+        <include refid="doUncertainOrderBy" />
+		<dynamic prepend="limit">
+			<isNotEqual property="isDownload" compareValue="true">
+                <![CDATA[ #begin#, #num#]]>
+			</isNotEqual>
+		</dynamic>
+	</select>
+	
+	<select id="queryPutawayOrderDetailCount" resultClass="java.lang.Integer" 
+		parameterClass="putawayOrderDetailQuery">
+		select count(*) from putaway_order_detail
+        <include refid="queryParam" />
+	</select>
+
+     <!-- 根据上架单id和商品code查询上架单明细  -->
+     <select id="queryByPutawayOrderIdAndItemCode"  resultMap="putawayOrderDetailDOResultMap">
+      SELECT * FROM putaway_order_detail where putaway_order_id=#putawayOrderId# AND item_code=#itemCode# AND warehouse_code=#warehouseCode#
+     </select>
+     
+     <!-- 根据上架单id查询上架单明细列表 -->
+     <select id="queryPutawayOrderDetailByPutawayOrderId"  resultMap="putawayOrderDetailDOResultMap">
+      SELECT * FROM putaway_order_detail where putaway_order_id=#putawayOrderId# AND warehouse_code=#warehouseCode#
+     </select>
+     
+     <!-- 根据上架单id,商品code,库位查询上架单明细 -->
+     <select id="queryByPutawayOrderIdAndItemCodeAndCabinetId"  resultMap="putawayOrderDetailDOResultMap">
+      SELECT * FROM putaway_order_detail where putaway_order_id=#putawayOrderId# AND item_code=#itemCode#
+      AND actual_cabinet_id=#cabinetId# AND warehouse_code=#warehouseCode#
+     </select>
+     
+     
+     <update id="updateActualPackageQuantityById">
+         UPDATE putaway_order_detail SET actual_package_quantity=#actualPackageQuantity#
+         WHERE id=#id# AND warehouse_code=#warehouseCode# AND putaway_order_id=#putawayOrderId#
+     </update>
+</sqlMap>

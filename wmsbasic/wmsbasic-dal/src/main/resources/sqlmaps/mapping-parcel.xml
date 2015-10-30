@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="parcel">
+	<typeAlias alias="parcelDO" type="com.wdk.wms.basic.daoobject.ParcelDO" />
+	<typeAlias alias="parcelQuery" type="com.wdk.wms.basic.query.parameters.ParcelQuery" />
+	
+	<resultMap id="basicParcelResultMap" class="parcelDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="operatorId" column="operator_id" />
+		<result property="parcelNumber" column="parcel_number" />
+		<result property="batchId" column="batch_id" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="ownerId" column="owner_id" />
+		<result property="warehouseCode" column="warehouse_code" />
+		<result property="responsibleId" column="responsible_id" />
+		<result property="waveId" column="wave_id" />
+		
+	</resultMap>
+
+	<!-- select 基本语句 -->
+	<select id="queryBasicParce" resultMap="basicParcelResultMap" parameterClass="parcelQuery">
+		select *
+		from parcel ba
+		<dynamic prepend="WHERE">
+			<isNotNull property="operatorId" prepend="AND">
+	        <![CDATA[  
+	        ba.operator_id = #operatorId#  
+	        ]]></isNotNull>
+	        <isNotNull property="parcelNumber" prepend="AND">
+	        <![CDATA[  
+	        ba.parcel_number = #parcelNumber#  
+	        ]]></isNotNull>
+	        <isNotNull property="batchId" prepend="AND">
+	        <![CDATA[  
+	        ba.batch_id = #batchId#  
+	        ]]></isNotNull>
+	        <isNotNull property="id" prepend="AND">
+	        <![CDATA[  
+	        ba.id = #id#  
+	        ]]></isNotNull>
+	        
+	         <isNotNull property="warehouseCode" prepend="AND">
+	        <![CDATA[  
+	        ba.warehouse_code = #warehouseCode#  
+	        ]]></isNotNull>
+	         <isNotNull property="ownerId" prepend="AND">
+	        <![CDATA[  
+	        ba.owner_id = #ownerId#  
+	        ]]></isNotNull>
+	         <isNotNull property="warehouseId" prepend="AND">
+	        <![CDATA[  
+	        ba.warehouse_id = #warehouseId#  
+	        ]]></isNotNull>
+		</dynamic>
+	</select>
+
+	<!-- insert into 基本语句 -->
+	<insert id="insertBasicParcel" parameterClass="parcelDO">
+	insert into parcel(gmt_create,gmt_modified,operator_id,parcel_number,batch_id,warehouse_id,owner_id,warehouse_code,responsible_id,wave_id)
+	values(now(),now(),#operatorId#,#parcelNumber#,#batchId#,#warehouseId#,#ownerId#,#warehouseCode#,#responsibleId#,#waveId#)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+	
+
+	
+	<!-- update 基本语句 -->
+	<update id="updateBasicParcel" parameterClass="parcelDO">
+		update parcel
+		set gmt_modified=now(),operator_id=#operatorId#,parcel_number=#parcelNumber#,batch_id=#batchId#,warehouse_id=#warehouseId#,owner_id=#ownerId#,responsible_id=#responsibleId#,wave_id=#waveId#
+		where id = #id# AND warehouse_code=#warehouseCode#
+	</update>
+
+	
+	<!--查询数量-->
+	<select id="queryCountBasicParcel" resultClass="java.lang.Integer"
+		parameterClass="parcelQuery">
+		SELECT count(*)
+		FROM parcel t
+		<dynamic prepend="WHERE">
+	        <isNotNull property="parcelNumber" prepend="AND">
+	        <![CDATA[  
+	        t.parcel_number = #parcelNumber#  
+	        ]]></isNotNull>
+	        <isNotNull property="warehouseCode" prepend="AND">
+	        <![CDATA[  
+	        t.warehouse_code = #warehouseCode#  
+	        ]]></isNotNull>
+	         <isNotNull property="ownerId" prepend="AND">
+	        <![CDATA[  
+	       t.owner_id = #ownerId#  
+	        ]]></isNotNull>
+	         <isNotNull property="warehouseId" prepend="AND">
+	        <![CDATA[  
+	       t.warehouse_id = #warehouseId#  
+	        ]]></isNotNull>
+		</dynamic>
+	</select>
+	
+	<!--查询ID-->
+	<select id="queryById" resultMap="basicParcelResultMap"  >
+		SELECT *
+		FROM parcel t
+		<dynamic prepend="WHERE">
+	        <isNotNull property="id" prepend="AND">
+	        <![CDATA[  
+	        t.id = #id#  
+	        ]]></isNotNull>
+	       <isNotNull property="warehouseCode" prepend="AND">
+	        <![CDATA[  
+	        t.warehouse_code = #warehouseCode#  
+	        ]]></isNotNull>
+		</dynamic>
+	</select>
+	
+	<select id="queryByWaveId" resultMap="basicParcelResultMap"  >
+	    SELECT *　 FROM parcel WHERE wave_id=#waveId# AND warehouse_code = #warehouseCode#  
+	</select>
+
+</sqlMap>

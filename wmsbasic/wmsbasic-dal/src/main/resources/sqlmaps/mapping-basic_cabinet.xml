@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="basic_cabinet">
+
+	<typeAlias alias="basicCabinetDO" type="com.wdk.wms.basic.daoobject.BasicCabinetDO" />
+	<typeAlias alias="cabinetQuery" type="com.wdk.wms.basic.query.parameters.CabinetQuery" />
+	<resultMap id="basicCabinetDOResultMap" class="basicCabinetDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="code" column="code" />
+		<result property="warehouseId" column="warehouse_id" />
+		<result property="status" column="status" />
+		<result property="length" column="length" />
+		<result property="width" column="width" />
+		<result property="height" column="height" />
+		<result property="maxCapacity" column="max_capacity" />
+		<result property="maxWeight" column="max_weight" />
+		<result property="maxKindNum" column="max_kind_num" />
+		<result property="maxNum" column="max_num" />
+		<result property="type" column="type" />
+		<result property="category" column="category" />
+		<result property="rfid" column="rfid" />
+		<result property="volumeRate" column="volume_rate" />
+		<result property="rackPriority" column="rack_priority" />
+		<result property="pickPriority" column="pick_priority" />
+        <result property="temperType" column="temper_type" />
+		<result property="isActive" column="is_active" />
+		<result property="operatorId" column="operator_id" />
+		<result property="operatorIp" column="operator_ip" />
+		<result property="feature" column="feature" />
+		<result property="warehouseArea" column="warehouse_area" />
+	</resultMap>
+	
+	<resultMap id="basicCabinetUnitDOResultMap" class="basicCabinetDO">
+		<result property="id" column="id" />
+		<result property="gmtCreate" column="gmt_create" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="code" column="code" />
+		<result property="warehouseId" column="warehouse_id" /> 
+		<result property="status" column="status" />
+		<result property="length" column="length" />
+		<result property="width" column="width" />
+		<result property="height" column="height" />
+		<result property="maxCapacity" column="max_capacity" />
+		<result property="maxWeight" column="max_weight" />
+		<result property="maxKindNum" column="max_kind_num" />
+		<result property="maxNum" column="max_num" />
+		<result property="type" column="type" />
+		<result property="category" column="category" />
+		<result property="rfid" column="rfid" />
+		<result property="volumeRate" column="volume_rate" />
+		<result property="rackPriority" column="rack_priority" />
+		<result property="pickPriority" column="pick_priority" />
+        <result property="temperType" column="temper_type" />
+		<result property="isActive" column="is_active" />
+		<result property="operatorId" column="operator_id" />
+		<result property="operatorIp" column="operator_ip" />
+		<result property="feature" column="feature" />
+		<result property="warehouseArea" column="warehouse_area" />
+	</resultMap>
+	
+		<!--排序条件-->
+	<sql id="doUncertainOrderBy">
+		<dynamic prepend="ORDER BY">
+			a1.gmt_modified desc
+		</dynamic>
+	</sql>
+	
+    <sql id="doUncertainQueryParams">
+		<dynamic prepend="WHERE">
+			<isNotNull property="code" prepend="AND">
+        <![CDATA[  
+        a1.code = #code#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend="AND">
+        <![CDATA[  
+        a1.status = #status#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="type" prepend="AND">
+        <![CDATA[  
+        a1.type = #type#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="warehouseId" prepend="AND">
+        <![CDATA[  
+        a1.warehouse_id = #warehouseId#  
+        ]]>
+			</isNotNull>
+		</dynamic>
+	</sql>
+
+	<select id="queryCabinet" resultMap="basicCabinetUnitDOResultMap"
+		parameterClass="cabinetQuery">
+		SELECT 
+		a1.*,a2.name as warehouse_name
+	    FROM basic_cabinet a1
+        LEFT JOIN basic_warehouse a2 on 
+        a1.warehouse_id=a2.id
+	    <include refid="doUncertainQueryParams" />
+	    <include refid="doUncertainOrderBy"/>
+		<dynamic prepend="limit">
+			<isEqual property="isDownload" compareValue="false">
+        <![CDATA[  
+        #begin#, #num#  
+        ]]>
+			</isEqual>
+		</dynamic>
+	</select>
+	
+	<insert id="insertCabinet" parameterClass="basicCabinetDO">
+		INSERT INTO basic_cabinet( gmt_create, gmt_modified, code, 
+		rack_priority, pick_priority, type, category, length,
+		max_weight,rfid,volume_rate,warehouse_id,
+		width, height, max_capacity, max_kind_num, max_num, temper_type, is_active, operator_id, operator_ip,status,warehouse_area)
+		VALUES (NOW(), NOW(), #code#,
+		#rackPriority#,#pickPriority#,  #type#, #category#, #length#,
+		#maxWeight#,#rfid#,#volumeRate#,#warehouseId#,
+		#width#,#height#,#maxCapacity#,#maxKindNum#,#maxNum#,#temperType#,#isActive#,#operatorId#,#operatorIp#,1,#warehouseArea#)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+	
+	<update id="updateCabinet" parameterClass="basicCabinetDO">
+	    UPDATE basic_cabinet
+	    SET gmt_modified = now() ,code = #code#  ,rack_priority = #rackPriority#  ,pick_priority = #pickPriority#  ,
+	      type = #type#  ,category = #category#  , length = #length#, max_weight=#maxWeight#,
+	      width = #width#  ,height = #height#,max_capacity = #maxCapacity#  ,max_kind_num = #maxKindNum#  ,
+	      max_num = #maxNum# ,temper_type = #temperType#  ,is_active = #isActive# ,operator_id=#operatorId#,
+	      operator_ip=#operatorIp#,warehouse_area=#warehouseArea#
+	      WHERE id = #id#
+	   <!--  
+	    <dynamic prepend="SET">
+	      <isNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNull>
+	       <isNotNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+			</isNotNull>
+			<isNotNull property="code" prepend=",">
+        <![CDATA[  
+        code = #code#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="rackPriority" prepend=",">
+        <![CDATA[  
+        rack_priority = #rackPriority#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="pickPriority" prepend=",">
+        <![CDATA[  
+        pick_priority = #pickPriority#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="warehouseAreaId" prepend=",">
+        <![CDATA[  
+        warehouse_area_id = #warehouseAreaId#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="type" prepend=",">
+        <![CDATA[  
+        type = #type#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="category" prepend=",">
+        <![CDATA[  
+        category = #category#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="length" prepend=",">
+        <![CDATA[  
+        length = #length#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="width" prepend=",">
+        <![CDATA[  
+        width = #width#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="height" prepend=",">
+        <![CDATA[  
+        height = #height#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="maxCapacity" prepend=",">
+        <![CDATA[  
+        max_capacity = #maxCapacity#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="maxKindNum" prepend=",">
+        <![CDATA[  
+        max_kind_num = #maxKindNum#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="maxNum" prepend=",">
+        <![CDATA[  
+        max_num = #maxNum#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="temperType" prepend=",">
+        <![CDATA[  
+        temper_type = #temperType#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="isActive" prepend=",">
+        <![CDATA[  
+        is_active = #isActive#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend=",">
+        <![CDATA[  
+        status = #status#  
+        ]]>
+			</isNotNull>
+			WHERE id = #id#
+	    </dynamic>
+	    -->
+	</update>
+	
+	<select id="queryCabinetCount" resultClass="java.lang.Integer"
+		parameterClass="cabinetQuery">
+		SELECT COUNT(*)
+	    FROM basic_cabinet a1
+	    <include refid="doUncertainQueryParams" />
+	</select>
+	
+		<update id="updateCabinetStatus" >
+	    UPDATE basic_cabinet
+	    <dynamic prepend="SET">	     
+	    <isNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+	       </isNull>
+	       <isNotNull property="gmtModified" prepend=",">
+	        <![CDATA[  
+	        gmt_modified = now() 
+	        ]]>
+			</isNotNull>
+			<isNotNull property="status" prepend=",">
+        <![CDATA[  
+        status = #status#  
+        ]]>
+			</isNotNull>
+			<isNotNull property="operatorId" prepend=",">
+        <![CDATA[  
+        operator_id = #operatorId#  
+        ]]>
+			</isNotNull>
+			WHERE id IN
+		  ($idList$)
+	    </dynamic>
+	</update>
+	
+	<select id="queryCabinetById" parameterClass="java.lang.Long" resultMap="basicCabinetDOResultMap">
+	    SELECT * FROM basic_cabinet WHERE id = #id#
+	</select>
+	
+	<!-- 根据仓库id和库位code查询库位 -->
+	<select id="queryBycabinetCode" resultMap="basicCabinetDOResultMap">
+	    SELECT * FROM basic_cabinet WHERE warehouse_id=#warehouseId# AND code=#cabinetCode#
+	</select>
+	
+	<!-- 查询默认库位id -->
+	<select id="queryDefaultCabinetId" resultClass="java.lang.Long">
+	    SELECT id FROM basic_cabinet WHERE id=1;
+	</select>
+	
+	<select id="queryCabinetByIds" resultMap="basicCabinetDOResultMap">
+	   SELECT * FROM basic_cabinet WHERE id in
+	   <iterate conjunction="," property="ids" open="(" close=")">
+					#ids[]#
+				</iterate>
+	</select>
+	
+	<select id="unAllocatedCabinet" resultMap="basicCabinetDOResultMap">
+	   SELECT * FROM basic_cabinet WHERE id not in
+	   (SELECT cabinet_id FROM sorting_goods_partition_cabinet WHERE 
+	    type =#sortingType# AND warehouse_id=#warehouseId#
+	   ) AND warehouse_id=#warehouseId#
+	</select>
+	
+	<insert id="insertCabinetList" >
+	   INSERT INTO basic_cabinet ( gmt_create, gmt_modified, code, 
+		rack_priority, pick_priority, type, category, length,
+		max_weight,rfid,volume_rate,warehouse_id,
+		width, height, max_capacity, max_kind_num, max_num, temper_type, is_active, operator_id,
+		 operator_ip,status,warehouse_area) values
+		<iterate conjunction=","  property="cabinetList">
+		(NOW(), NOW(), #cabinetList[].code#,
+		#cabinetList[].rackPriority#,#cabinetList[].pickPriority#,  #cabinetList[].type#, #cabinetList[].category#, 
+		#cabinetList[].length#,
+		#cabinetList[].maxWeight#,#cabinetList[].rfid#,#cabinetList[].volumeRate#,#cabinetList[].warehouseId#,
+		#cabinetList[].width#,#cabinetList[].height#,#cabinetList[].maxCapacity#,#cabinetList[].maxKindNum#,
+		#cabinetList[].maxNum#,#cabinetList[].temperType#,
+		#cabinetList[].isActive#,#cabinetList[].operatorId#,
+		#cabinetList[].operatorIp#,1,#cabinetList[].warehouseArea#)
+		</iterate>
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+	
+	<select id="queryIdsByTypeAndIsActive" resultClass="java.lang.Long">
+	    SELECT distinct(id) FROM basic_cabinet WHERE is_active=#isActive# AND
+	    type IN
+	    <iterate conjunction=","  property="cabinetType" open="(" close=")">
+	    #cabinetType[]#
+	    </iterate>
+	    AND warehouse_id= #warehouseId#
+	</select>
+</sqlMap>

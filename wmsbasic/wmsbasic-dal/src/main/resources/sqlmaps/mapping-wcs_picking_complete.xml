@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="wcs_picking_complete">
+
+	<typeAlias alias="WcsPickingCompleteDO" type="com.wdk.wms.basic.daoobject.WcsPickingCompleteDO" />
+	
+	<resultMap id="WcsPickingCompleteDOResultMap" class="WcsPickingCompleteDO">
+		<result column="id" property="id" />
+		<result column="gmt_create" property="gmtCreate" />
+		<result column="gmt_modified" property="gmtModified" />
+		<result column="container_code" property="containerCode" />
+		<result column="wave_code" property="waveCode" />
+		<result column="attribute" property="attribute" />
+		<result column="status" property="status" />
+		<result column="warehouse_id" property="warehouseId" />
+		<result column="failure_times" property="failureTimes" />
+	</resultMap>
+
+	<!-- 插入操作 -->
+	<insert id="insertWcsPickingComplete" parameterClass="WcsPickingCompleteDO">
+		insert into wcs_picking_complete(
+			gmt_create,
+			gmt_modified,
+			container_code,
+			wave_code,
+			attribute,
+			status,
+			warehouse_id,
+			failure_times
+		)
+		values
+		(
+			now(),
+			now(),
+			#containerCode#,
+			#waveCode#,
+			#attribute#,
+			0,
+			#warehouseId#,
+			0
+		)
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT
+			LAST_INSERT_ID() AS value
+		</selectKey>
+	</insert>
+	
+	<!-- 根据id更新状态 -->
+	<update id="updateStatus">
+		update wcs_picking_complete
+		set status=#status#,gmt_modified=now()
+		where id=#id#
+	</update>
+	
+	<update id="updateFailureTimes">
+		update wcs_picking_complete
+		set failure_times+=1,gmt_modified=now()
+		where id=#id#
+	</update>
+	
+	<!-- 查询第一条待发送状态的记录 -->
+	<select id="queryFirstUnsentRecord" resultMap="WcsPickingCompleteDOResultMap">
+		select * from wcs_picking_complete
+		where status=0 
+		order by id asc
+		limit 1
+	</select>
+	
+	<select id="queryUnsentRecord" resultMap="WcsPickingCompleteDOResultMap">
+		select * from wcs_picking_complete
+		where status=0
+		order by id asc
+	</select>
+</sqlMap>
